@@ -1,7 +1,7 @@
 # Toros Club - Backend API
 
-Este es el backend en Laravel para el sistema de gestión de "Toros Club".
-A continuación, se detallan los endpoints disponibles.
+Bienvenido al backend de Toros Club, un sistema desarrollado en Laravel para gestionar el registro de jugadores, documentos, pagos, transferencias, etc., dentro del club. Este API proporciona un entorno seguro y eficiente para la administración de usuarios, roles y la información clave del sistema, entre otras.
+Este documento detalla los endpoints disponibles, los datos requeridos en cada petición y las reglas de validación aplicadas.
 
 ## URL base
 
@@ -11,7 +11,8 @@ https://sistema.clubtoros.com/
 
 ## Autenticación
 
-Algunas rutas requieren autenticación mediante un token Bearer en los headers.
+La API está protegida mediante Laravel Sanctum, por lo que para acceder a los endpoints protegidos es necesario incluir un token Bearer en las peticiones.
+Cada solicitud debe cumplir con las validaciones establecidas, y en caso de errores en los datos, se devolverá una respuesta con código 422 indicando el problema específico.
 
 ### **Login**
 
@@ -336,7 +337,7 @@ DELETE /pagos-ntr/{id} (Solo admin)
 
 -   Todos los endpoints dentro de `Route::middleware('auth:sanctum')` requieren un token en el header `Authorization: Bearer {token}`.
 -   Los administradores son los únicos que pueden eliminar registros en todas las entidades.
--   En `registro-jugadores`, `documentos`, `transferencia-jugadores` y `pagos-ntr`, el `registro_jugador_id` es único.
+-   En `documentos`, `transferencia-jugadores` y `pagos-ntr`, el `registro_jugador_id` es único.
 -   Para actualizar documentos e imágenes en Laravel con PUT, se debe enviar `_method=PUT` en un request POST.
 
 ---
