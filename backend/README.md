@@ -6,7 +6,7 @@ Este documento detalla los endpoints disponibles, los datos requeridos en cada p
 ## URL base
 
 ```
-https://sistema.clubtoros.com/
+https://sistema.clubtoros.com/api
 ```
 
 ## Autenticación

@@ -5,5 +5,17 @@
   "name": "TorosClub",
   "short_name": "TorosClub",
   "start_url": "/?utm_source=web_app_manifest",
-  "orientation": "portrait"
+  "orientation": "portrait",
+  "related_applications": [
+    {
+      "platform": "itunes",
+      "id": "com.s1sistem.toros"
+    },
+    {
+      "platform": "play",
+      "url": "http://play.google.com/store/apps/details?id=com.s1sistem.toros",
+      "id": "com.s1sistem.toros"
+    }
+  ],
+  "prefer_related_applications": true
 }

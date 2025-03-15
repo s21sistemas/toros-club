@@ -94,7 +94,7 @@ class DocumentoController extends Controller
             // 'firma' => 'sometimes|mimes:pdf|max:2048',
         ]);
 
-        foreach (['curp_jugador', 'ine_tutor', 'acta_nacimiento', 'comprobante_domicilio'] as $campo) {
+        foreach (['curp_jugador', 'ine_tutor', 'acta_nacimiento', 'comprobante_domicilio', 'firma'] as $campo) {
             if ($request->hasFile($campo)) {
                 $carpeta = $registro->usuario_id . '/' . $registro->curp;
 
