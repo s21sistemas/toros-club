@@ -239,7 +239,7 @@ PATCH /actualizar-mfl/{id}
 
 ```json
 {
-    "numero_mfl": "string requerido"
+    "numero_mfl": "string requerido, min: 7, max: 8"
 }
 ```
 
@@ -261,6 +261,33 @@ POST /registro-porristas
 GET /registro-porristas/{id}
 PUT /registro-porristas/{id}
 DELETE /registro-porristas/{id} (Solo admin)
+```
+
+**SI 'tipo_inscripcion' ES IGUAL A 'transferencia' requiere en POST:**
+
+```json
+{
+    "nombre": "string requerido, max: 20",
+    "apellido_p": "string requerido, max: 30",
+    "apellido_m": "string requerido, max: 30",
+    "sexo": "requerido, valores: hombre, mujer",
+    "direccion": "string requerido, max: 500",
+    "telefono": "string requerido, max: 15",
+    "fecha_nacimiento": "date requerido",
+    "lugar_nacimiento": "string requerido, max: 255",
+    "curp": "string requerido, tamaño: 18, único",
+    "grado_escolar": "requerido, valores: primaria, secundaria, preparatoria",
+    "nombre_escuela": "string requerido, max: 255",
+    "alergias": "string requerido, max: 500",
+    "padecimientos": "string requerido, max: 500",
+    "peso": "numeric requerido, min: 1, max: 500",
+    "tipo_inscripcion": "requerido, valores: novato, reinscripcion, transferencia, porrista",
+    "foto_porrista": "base64 requerido",
+
+    "club_anterior": "string requerido",
+    "temporadas_jugadas": "integer requerido, min: 1",
+    "motivo_transferencia": "string requerido"
+}
 ```
 
 **Requiere en POST:**

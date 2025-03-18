@@ -226,7 +226,7 @@ class RegistroJugadorController extends Controller
             'curp' => 'required|string|size:18|alpha_num',
         ]);
 
-        $registro = RegistroJugador::where('curp', $request->curp)->first();
+        $registro = RegistroJugador::where('curp', $request->curp)->with(['documentos', 'pagos', 'transferencias'])->first();
 
         if (!$registro) {
             return response()->json(['error' => 'Registro no encontrado'], 404);
@@ -252,10 +252,10 @@ class RegistroJugadorController extends Controller
             'numero_mfl' => 'required|string|min:7|max:8',
         ]);
 
-        // Si son 7 digitos, agrear un 0 al inicio para que sean 8 digitos, trabajar con "pad"
         $numero_mfl = str_pad($request->numero_mfl, 8, '0', STR_PAD_LEFT);
 
-        $registro->update(['numero_mfl' => $numero_mfl]);
+        $registro->numero_mfl = $numero_mfl;
+        $registro->save();
         return response()->json(['message' => 'Registro actualizado'], 201);
     }
 }
