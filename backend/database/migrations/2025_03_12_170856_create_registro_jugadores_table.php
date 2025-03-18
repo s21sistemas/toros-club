@@ -30,7 +30,7 @@ return new class extends Migration
             $table->mediumText('padecimientos');
             $table->decimal('peso', 5, 2);
             $table->enum('tipo_inscripcion', ['novato', 'reinscripcion', 'transferencia', 'porrista']);
-            $table->string('foto_jugador')->nullable();
+            $table->longText('foto_jugador')->nullable();
             $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
             $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
         });

@@ -6,17 +6,6 @@
     <title>Pre-Registro Completado</title>
 
     <style>
-        .button-login {
-            background-color: #f7be13;
-            padding: 12px 30px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            display: inline-block;
-            font-size: 16px;
-            transition: .3s background;
-        }
-
         .button-login:hover {
             background-color: #ebb61a;
         }
@@ -93,10 +82,10 @@
                                 </tr>
                             </table>
 
-                            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin: 30px 0;">
-                                <tr>
+                            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; margin: 30px 0; text-align: center;">
+                                <tr style="text-align: center;">
                                     <td style="text-align: center;">
-                                        <a href="https://sistema.clubtoros.com/login" class="button-login" style="color: #ffffff">Iniciar sesión</a>
+                                        <a href="https://sistema.clubtoros.com/login" class="button-login" style="color: #ffffff; background-color: #f7be13; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block; font-size: 16px; transition: .3s background;">Iniciar sesión</a>
                                     </td>
                                 </tr>
                             </table>

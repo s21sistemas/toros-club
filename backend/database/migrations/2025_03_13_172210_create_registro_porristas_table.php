@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('nombre', 20);
             $table->string('apellido_p', 30);
             $table->string('apellido_m', 30);
-            $table->enum('sexo', ['hombre', 'mujer']);
+            $table->enum('sexo', ['mujer']);
             $table->mediumText('direccion');
             $table->string('telefono', 15);
             $table->date('fecha_nacimiento');
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->mediumText('alergias');
             $table->mediumText('padecimientos');
             $table->decimal('peso', 5, 2);
-            $table->enum('tipo_inscripcion', ['novato', 'reinscripcion', 'transferencia', 'porrista']);
+            $table->enum('tipo_inscripcion', ['porrista']);
             $table->string('foto_porrista')->nullable();
             $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
         });

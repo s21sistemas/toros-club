@@ -20,7 +20,6 @@ class RegistroJugador extends Model
 
     protected $hidden = [
         'usuario_id',
-        'foto_jugador',
         'categoria_id',
     ];
 

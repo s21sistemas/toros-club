@@ -20,7 +20,6 @@ class RegistroPorrista extends Model
 
     protected $hidden = [
         'usuario_id',
-        'foto_porrista',
     ];
 
     public function usuario()
@@ -31,8 +30,14 @@ class RegistroPorrista extends Model
     public function getFotoUrlAttribute()
     {
         $sin_foto = asset('storage/fotos_registro_porristas/default.png');
-        $foto = asset('storage/fotos_registro_porristas/'. $this->usuario_id . '/' . $this->foto_porrista);
+        $carpeta = $this->usuario_id . '/' . $this->curp . '/' . $this->foto_porrista;
+        $foto = asset('storage/fotos_registro_porristas/'. $carpeta);
 
         return $this->foto_porrista ? $foto : $sin_foto;
+    }
+
+    public function pagos()
+    {
+        return $this->hasMany(PagoPorrista::class, 'registro_porrista_id');
     }
 }

@@ -10,6 +10,8 @@ use App\Http\Controllers\RegistroJugadorController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\TransferenciaJugadorController;
 use App\Http\Controllers\PagoNTRController;
+use App\Http\Controllers\RegistroPorristaController;
+use App\Http\Controllers\PagoPorristaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,18 +24,23 @@ use App\Http\Controllers\PagoNTRController;
 |
 */
 
+// Login y pre-registro
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/registro', [UsuarioController::class, 'registro']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    // Modulos de la API (rutas protegidas)
     Route::apiResource('roles', RolController::class);
     Route::apiResource('usuarios', UsuarioController::class);
     Route::apiResource('perfil', PerfilController::class);
     Route::apiResource('registro-jugadores', RegistroJugadorController::class);
+    Route::get('search-jugadores', [RegistroJugadorController::class, 'searchCurp']);
     Route::apiResource('documentos', DocumentoController::class);
     Route::apiResource('transferencia-jugadores', TransferenciaJugadorController::class);
     Route::apiResource('pagos-ntr', PagoNTRController::class);
+    Route::apiResource('registro-porristas', RegistroPorristaController::class);
+    Route::apiResource('pagos-porristas', PagoPorristaController::class);
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);

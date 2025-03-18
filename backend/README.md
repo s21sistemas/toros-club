@@ -173,7 +173,7 @@ PUT /perfil
 GET /registro-jugadores
 POST /registro-jugadores
 GET /registro-jugadores/{id}
-POST /registro-jugadores/{id}
+PUT /registro-jugadores/{id}
 DELETE /registro-jugadores/{id} (Solo admin)
 ```
 
@@ -196,13 +196,14 @@ DELETE /registro-jugadores/{id} (Solo admin)
     "padecimientos": "string requerido, max: 500",
     "peso": "numeric requerido, min: 1, max: 500",
     "tipo_inscripcion": "requerido, valores: novato, reinscripcion, transferencia, porrista",
-    "foto_jugador": "imagen requerido, formatos: jpg, jpeg, png, max: 2048 KB"
+    "foto_jugador": "base64 requerido"
+    // "foto_jugador": "imagen requerido, formatos: jpg, jpeg, png, max: 2048 KB"
 }
 ```
 
 **Requiere en PUT:**
 
-**IMPORTANTE:** Para actualizar la foto, envía la petición en `POST` usando `form-data` y agrega el campo `_method` con valor `PUT`.
+<!-- **IMPORTANTE:** Para actualizar la foto, envía la petición en `POST` usando `form-data` y agrega el campo `_method` con valor `PUT`. -->
 
 ```json
 {
@@ -221,7 +222,78 @@ DELETE /registro-jugadores/{id} (Solo admin)
     "padecimientos": "string opcional, max: 500",
     "peso": "numeric opcional, min: 1, max: 500",
     "tipo_inscripcion": "opcional, valores: novato, reinscripcion, transferencia, porrista",
-    "foto_jugador": "imagen opcional, formatos: jpg, jpeg, png, max: 2048 KB"
+    "foto_jugador": "base64 opcional"
+    // "foto_jugador": "imagen opcional, formatos: jpg, jpeg, png, max: 2048 KB"
+}
+```
+
+---
+
+### **Busqueda a Jugadores por CURP**
+
+```
+GET /search-jugadores/{curp}
+```
+
+---
+
+### **Registro de Porristas**
+
+```
+GET /registro-porristas
+POST /registro-porristas
+GET /registro-porristas/{id}
+PUT /registro-porristas/{id}
+DELETE /registro-porristas/{id} (Solo admin)
+```
+
+**Requiere en POST:**
+
+```json
+{
+    "nombre": "string requerido, max: 20",
+    "apellido_p": "string requerido, max: 30",
+    "apellido_m": "string requerido, max: 30",
+    "sexo": "requerido, valores: hombre, mujer",
+    "direccion": "string requerido, max: 500",
+    "telefono": "string requerido, max: 15",
+    "fecha_nacimiento": "date requerido",
+    "lugar_nacimiento": "string requerido, max: 255",
+    "curp": "string requerido, tamaño: 18, único",
+    "grado_escolar": "requerido, valores: primaria, secundaria, preparatoria",
+    "nombre_escuela": "string requerido, max: 255",
+    "alergias": "string requerido, max: 500",
+    "padecimientos": "string requerido, max: 500",
+    "peso": "numeric requerido, min: 1, max: 500",
+    "tipo_inscripcion": "requerido, valores: novato, reinscripcion, transferencia, porrista",
+    "foto_porrista": "base64 requerido"
+    // "foto_porrista": "imagen requerido, formatos: jpg, jpeg, png, max: 2048 KB"
+}
+```
+
+**Requiere en PUT:**
+
+<!-- **IMPORTANTE:** Para actualizar la foto, envía la petición en `POST` usando `form-data` y agrega el campo `_method` con valor `PUT`. -->
+
+```json
+{
+    "nombre": "string opcional, max: 20",
+    "apellido_p": "string opcional, max: 30",
+    "apellido_m": "string opcional, max: 30",
+    "sexo": "opcional, valores: hombre, mujer",
+    "direccion": "string opcional, max: 500",
+    "telefono": "string opcional, max: 15",
+    "fecha_nacimiento": "date opcional",
+    "lugar_nacimiento": "string opcional, max: 255",
+    "curp": "string opcional, tamaño: 18, único",
+    "grado_escolar": "opcional, valores: primaria, secundaria, preparatoria",
+    "nombre_escuela": "string opcional, max: 255",
+    "alergias": "string opcional, max: 500",
+    "padecimientos": "string opcional, max: 500",
+    "peso": "numeric opcional, min: 1, max: 500",
+    "tipo_inscripcion": "opcional, valores: novato, reinscripcion, transferencia, porrista",
+    "foto_porrista": "base64 opcional"
+    // "foto_porrista": "imagen opcional, formatos: jpg, jpeg, png, max: 2048 KB"
 }
 ```
 
@@ -297,7 +369,7 @@ DELETE /transferencia-jugadores/{id} (Solo admin)
 
 ---
 
-### **Pagos NTR**
+### **Pagos NTR (jugadores)**
 
 ```
 GET /pagos-ntr
@@ -328,6 +400,38 @@ DELETE /pagos-ntr/{id} (Solo admin)
     "botiquin": "boolean opcional",
     "coacheo_semanal": "boolean opcional",
     "registro_jugador_id": "integer opcional, único"
+}
+```
+
+---
+
+### **Pagos Porristas**
+
+```
+GET /pagos-porristas
+POST /pagos-porristas
+GET /pagos-porristas/{id}
+PUT /pagos-porristas/{id}
+DELETE /pagos-porristas/{id} (Solo admin)
+```
+
+**Requiere en POST:**
+
+```json
+{
+    "inscripcion": "boolean requerido",
+    "coacheo_semanal": "boolean requerido",
+    "registro_porrista_id": "integer requerido, único"
+}
+```
+
+**Requiere en PUT:**
+
+```json
+{
+    "inscripcion": "boolean opcional",
+    "coacheo_semanal": "boolean opcional",
+    "registro_porrista_id": "integer opcional, único"
 }
 ```
 
