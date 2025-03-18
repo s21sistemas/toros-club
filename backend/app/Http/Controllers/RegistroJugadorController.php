@@ -195,7 +195,7 @@ class RegistroJugadorController extends Controller
         Storage::delete('public/fotos_registro_jugadores/' . $carpeta . '/' . $nombre);
     }
 
-    public function searchCurp($curp)
+    public function searchJugador($curp)
     {
         $registro = RegistroJugador::where('curp', $curp)->first();
 
