@@ -229,10 +229,26 @@ DELETE /registro-jugadores/{id} (Solo admin)
 
 ---
 
+### **Actualizar Número MFL de Jugadores**
+
+```
+PATCH /actualizar-mfl/{id}
+```
+
+**Requiere en PATCH:**
+
+```json
+{
+    "numero_mfl": "string requerido"
+}
+```
+
+---
+
 ### **Busqueda a Jugadores por CURP**
 
 ```
-GET /search-jugadores/{curp}
+GET /search-jugadores?curp={curp}
 ```
 
 ---

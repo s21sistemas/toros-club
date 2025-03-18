@@ -31,6 +31,7 @@ return new class extends Migration
             $table->decimal('peso', 5, 2);
             $table->enum('tipo_inscripcion', ['novato', 'reinscripcion', 'transferencia', 'porrista']);
             $table->longText('foto_jugador')->nullable();
+            $table->string('numero_mfl', 8)->nullable();
             $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('cascade');
             $table->foreignId('categoria_id')->constrained('categorias')->onDelete('cascade');
         });

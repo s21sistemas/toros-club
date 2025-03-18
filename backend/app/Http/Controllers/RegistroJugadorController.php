@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Categoria;
 use App\Models\Usuario;
 use App\Models\RegistroJugador;
+use App\Models\TransferenciaJugador;
 use App\Models\RegistroPorrista;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,8 +63,13 @@ class RegistroJugadorController extends Controller
             'padecimientos' => 'required|string|max:500',
             'peso' => 'required|numeric|min:1|max:500',
             'tipo_inscripcion' => 'required|in:novato,reinscripcion,transferencia,porrista',
+            'numero_mfl' => 'nullable|string|min:7|max:8',
             'foto_jugador' => 'required|string',
         ]);
+
+        if($request->numero_mfl){
+            $data['numero_mfl'] = str_pad($request->numero_mfl, 8, '0', STR_PAD_LEFT);
+        }
 
         $data['usuario_id'] = Auth::id();
 
@@ -89,9 +95,22 @@ class RegistroJugadorController extends Controller
         }
 
         $data['categoria_id'] = $categoria->id;
-        $registro = RegistroJugador::create($data);
 
-        return response()->json(['message' =>  'Registro guardado correctamente', 'registro' => $registro], 201);
+        if($request->tipo_inscripcion === 'transferencia'){
+            $data_trans = $request->validate([
+                'club_anterior' => 'required|string',
+                'temporadas_jugadas' => 'required|integer|min:1',
+                'motivo_transferencia' => 'required|string',
+            ]);
+
+            $registro = RegistroJugador::create($data);
+            $data_trans['registro_jugador_id'] = $registro->id;
+            $transferencia = TransferenciaJugador::create($data_trans);
+            return response()->json(['message' =>  'Registro guardado correctamente', 'registro' => $registro, 'transferencia' => $transferencia], 201);
+        }else{
+            $registro = RegistroJugador::create($data);
+            return response()->json(['message' =>  'Registro guardado correctamente', 'registro' => $registro], 201);
+        }
     }
 
     //  * Mostrar un solo registro por su ID.
@@ -141,6 +160,7 @@ class RegistroJugadorController extends Controller
             'padecimientos' => 'sometimes|string|max:500',
             'peso' => 'sometimes|numeric|min:1|max:500',
             'tipo_inscripcion' => 'sometimes|in:novato,reinscripcion,transferencia',
+            'numero_mfl' => 'sometimes|string|min:7|max:8',
             'foto_jugador' => 'sometimes|string',
         ]);
 
@@ -156,6 +176,10 @@ class RegistroJugadorController extends Controller
 
         //     $data['foto_jugador'] = $this->subirFoto($request->file('foto_jugador'), $carpeta);
         // }
+
+        if($request->numero_mfl){
+            $data['numero_mfl'] = str_pad($request->numero_mfl, 8, '0', STR_PAD_LEFT);
+        }
 
         $registro->update($data);
 
@@ -195,14 +219,43 @@ class RegistroJugadorController extends Controller
         Storage::delete('public/fotos_registro_jugadores/' . $carpeta . '/' . $nombre);
     }
 
-    public function searchJugador($curp)
+    // * Función para buscar un jugador por su CURP
+    public function searchJugador(Request $request)
     {
-        $registro = RegistroJugador::where('curp', $curp)->first();
+        $request->validate([
+            'curp' => 'required|string|size:18|alpha_num',
+        ]);
+
+        $registro = RegistroJugador::where('curp', $request->curp)->first();
 
         if (!$registro) {
             return response()->json(['error' => 'Registro no encontrado'], 404);
         }
 
         return response()->json($registro);
+    }
+
+    //  * Función para actualizar Número MFL.
+    public function updateMFL(Request $request, $id)
+    {
+        $registro = RegistroJugador::find($id);
+
+        if (!$registro) {
+            return response()->json(['error' => 'Registro no encontrado'], 404);
+        }
+
+        if (Auth::user()->cannot('actualizar') && $registro->usuario_id !== Auth::id()) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        $request->validate([
+            'numero_mfl' => 'required|string|min:7|max:8',
+        ]);
+
+        // Si son 7 digitos, agrear un 0 al inicio para que sean 8 digitos, trabajar con "pad"
+        $numero_mfl = str_pad($request->numero_mfl, 8, '0', STR_PAD_LEFT);
+
+        $registro->update(['numero_mfl' => $numero_mfl]);
+        return response()->json(['message' => 'Registro actualizado'], 201);
     }
 }

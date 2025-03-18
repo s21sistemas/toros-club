@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('perfil', PerfilController::class);
     Route::apiResource('registro-jugadores', RegistroJugadorController::class);
     Route::get('search-jugadores', [RegistroJugadorController::class, 'searchJugador']);
+    Route::patch('actualizar-mfl/{id}', [RegistroJugadorController::class, 'updateMFL']);
     Route::apiResource('documentos', DocumentoController::class);
     Route::apiResource('transferencia-jugadores', TransferenciaJugadorController::class);
     Route::apiResource('pagos-ntr', PagoNTRController::class);
