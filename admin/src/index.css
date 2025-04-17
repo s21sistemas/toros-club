@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #fbbe08;
+  --color-primary-dark: #c79b17;
+  --color-secondary: #eab108;
+}
+
+@layer components {
+  .text-shadow {
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 50px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 8px solid lightblue;
+  border-right-color: var(--color-primary);
+  animation: l2 1s infinite linear;
+}
+@keyframes l2 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+body {
+  overflow: hidden;
+}
+
+.sidebar {
+  overflow: auto;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 7px;
+  height: 5px;
+}
+
+/* Handle */
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-primary-dark);
+  border-radius: 2px;
+}
+
+/* Handle on hover */
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-dark);
+}
+
+.rbc-toolbar button {
+  background-color: var(--color-primary) !important;
+  color: #fff !important;
+  border-color: var(--color-primary-dark) !important;
+}
+
+.rbc-toolbar button:focus {
+  background-color: var(--color-primary-dark) !important;
+  color: #fff !important;
+}
+
+.rbc-event {
+  background: transparent !important;
+  padding: 0 !important;
+}
