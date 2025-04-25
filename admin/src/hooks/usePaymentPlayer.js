@@ -2,8 +2,13 @@ import { useEffect } from 'react'
 import { useModalStore } from '../store/useModalStore'
 import { usePaymentPlayerStore } from '../store/usePaymentPlayerStore'
 import { usePlayerStore } from '../store/usePlayerStore'
+import { useTemporadasStore } from '../store/useTemporadasStore'
 
 export const usePaymentPlayer = () => {
+  const getDataTemporadas = useTemporadasStore(
+    (state) => state.getDataTemporadas
+  )
+
   // Store de modal
   const modalType = useModalStore((state) => state.modalType)
   const formData = useModalStore((state) => state.formData)
@@ -124,10 +129,25 @@ export const usePaymentPlayer = () => {
       const data = await getDataPlayers()
       return data.map((player) => ({
         value: player.id,
-        label: `${player.nombre} ${player.apellido_p} ${player.apellido_m}`
+        label: `${player.nombre} ${player.apellido_p} ${player.apellido_m}`,
+        temporada: player.temporadaId,
+        categoria: player.categoria
       }))
     } catch (error) {
       console.error('Error loading users:', error)
+      return []
+    }
+  }
+
+  const loadOptionsTemporadas = async () => {
+    try {
+      const data = await getDataTemporadas()
+      return data.map((temp) => ({
+        value: temp.id,
+        label: temp.temporada
+      }))
+    } catch (error) {
+      console.error('Error loading data:', error)
       return []
     }
   }
@@ -138,6 +158,7 @@ export const usePaymentPlayer = () => {
     loading,
     handleSubmit,
     handleDelete,
-    loadOptions
+    loadOptions,
+    loadOptionsTemporadas
   }
 }

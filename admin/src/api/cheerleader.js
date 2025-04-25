@@ -9,6 +9,8 @@ import {
 } from 'firebase/firestore'
 import { db } from './db/firebaseConfig'
 import dayjs from 'dayjs'
+import { obtenerCostoTemporada } from './costos-porrista'
+import { toast } from 'sonner'
 
 const porristasCollection = collection(db, 'porristas')
 const pagosCollection = collection(db, 'pagos_porristas')
@@ -24,7 +26,8 @@ export const createCheerleader = async (data) => {
     const docRef = await addDoc(porristasCollection, newData)
     const porristaId = docRef.id
     const nombrePorrista = `${data.nombre} ${data.apellido_p} ${data.apellido_m}`
-    await createPagoCheer(porristaId, nombrePorrista)
+    const temporadaId = data.temporadaId
+    await createPagoCheer(porristaId, nombrePorrista, temporadaId)
 
     return porristaId
   } catch (error) {
@@ -64,8 +67,21 @@ export const removeCheerleader = async (id) => {
   }
 }
 
-const createPagoCheer = async (porristaId, nombrePorrista) => {
+const createPagoCheer = async (porristaId, nombrePorrista, temporadaId) => {
   const actuallyDate = dayjs()
+
+  const costosTemporada = await obtenerCostoTemporada(temporadaId)
+
+  if (costosTemporada.length === 0) {
+    toast.warning(
+      'No se encontraron costos para esta temporada. Se usarán valores por defecto.'
+    )
+  }
+
+  const costoInscripcion = parseFloat(costosTemporada[0]?.inscripcion) || 500
+  const costoCoaching = parseFloat(costosTemporada[0]?.coaching) || 500
+  const montoTotal = costoInscripcion + costoCoaching
+
   const pagosIniciales = {
     porristaId,
     nombre: nombrePorrista,
@@ -74,7 +90,7 @@ const createPagoCheer = async (porristaId, nombrePorrista) => {
         tipo: 'Inscripción',
         estatus: 'pendiente',
         fecha_pago: null,
-        monto: 500,
+        monto: costoInscripcion,
         metodo_pago: null,
         abono: 'NO',
         abonos: [],
@@ -84,7 +100,7 @@ const createPagoCheer = async (porristaId, nombrePorrista) => {
         tipo: 'Coaching',
         estatus: 'pendiente',
         fecha_pago: null,
-        monto: 500,
+        monto: costoCoaching,
         metodo_pago: null,
         abono: 'NO',
         abonos: [],
@@ -92,8 +108,8 @@ const createPagoCheer = async (porristaId, nombrePorrista) => {
       }
     ],
     monto_total_pagado: 0,
-    monto_total_pendiente: 2000,
-    monto_total: 2000,
+    monto_total_pendiente: montoTotal,
+    monto_total: montoTotal,
     fecha_registro: actuallyDate.format('YYYY-MM-DD')
   }
 

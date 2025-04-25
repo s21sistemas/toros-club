@@ -15,7 +15,14 @@ const pagosCollection = collection(db, 'pagos_jugadores')
 // Crear un pago
 export const createPayment = async (data) => {
   try {
-    const docRef = await addDoc(pagosCollection, data)
+    const actuallyDate = dayjs()
+
+    const newData = {
+      ...data,
+      fecha_registro: actuallyDate.format('YYYY-MM-DD')
+    }
+
+    const docRef = await addDoc(pagosCollection, newData)
     return docRef.id
   } catch (error) {
     console.error('Error al agregar pago:', error)

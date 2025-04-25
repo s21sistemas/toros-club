@@ -4,6 +4,7 @@ import { useTable } from '../hooks/useTable'
 import { useLocation } from 'react-router'
 import { useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
+
 export const SearchBar = ({ title }) => {
   const { permisos } = useAuth()
   const { pathname, search } = useLocation()

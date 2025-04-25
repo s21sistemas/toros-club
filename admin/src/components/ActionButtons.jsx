@@ -3,6 +3,7 @@ import { useModal } from '../hooks/useModal'
 import { useLocation } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import { usePDFEquipamiento } from '../hooks/usePDFEquipamiento'
+
 export const ActionButtons = ({ data }) => {
   const { pathname } = useLocation()
   const { openModal } = useModal()

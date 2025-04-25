@@ -15,7 +15,18 @@ const pagosCollection = collection(db, 'pagos_porristas')
 // Crear un pago
 export const createPayment = async (data) => {
   try {
-    const docRef = await addDoc(pagosCollection, data)
+    const actuallyDate = dayjs()
+
+    const newData = {
+      ...data,
+      porristaId: data.porrista.value,
+      nombre: data.porrista.label,
+      fecha_registro: actuallyDate.format('YYYY-MM-DD')
+    }
+
+    delete newData.porrista
+
+    const docRef = await addDoc(pagosCollection, newData)
     return docRef.id
   } catch (error) {
     console.error('Error al agregar pago:', error)

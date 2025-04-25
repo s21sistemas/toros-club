@@ -5,10 +5,14 @@ import { useUserStore } from '../store/useUserStore'
 import { uploadFileToFirebase } from '../utils/uploadFile'
 import { toast } from 'sonner'
 import { jugadorPorristaSchema } from '../zod/schemas'
+import { useTemporadasStore } from '../store/useTemporadasStore'
 
 export const useCheerleader = () => {
   // Store de users
   const getDataUsers = useUserStore((state) => state.getDataUsers)
+  const getDataTemporadas = useTemporadasStore(
+    (state) => state.getDataTemporadas
+  )
 
   // Store de modal
   const modalType = useModalStore((state) => state.modalType)
@@ -138,6 +142,19 @@ export const useCheerleader = () => {
     }
   }
 
+  const loadOptionsTemporadas = async () => {
+    try {
+      const data = await getDataTemporadas()
+      return data.map((temp) => ({
+        value: temp.id,
+        label: temp.temporada
+      }))
+    } catch (error) {
+      console.error('Error loading data:', error)
+      return []
+    }
+  }
+
   return {
     loadOptions,
     cheerleader,
@@ -145,6 +162,7 @@ export const useCheerleader = () => {
     getDataCheerleaders,
     handleSubmit,
     handleDelete,
-    handleReglamento
+    handleReglamento,
+    loadOptionsTemporadas
   }
 }

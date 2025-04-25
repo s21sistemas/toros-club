@@ -17,7 +17,8 @@ export const FormCheerleaders = () => {
     sigCanvas,
     clearSignature,
     saveSignature,
-    handleReglamento
+    handleReglamento,
+    loadOptionsTemporadas
   } = useCheerleader()
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -27,6 +28,19 @@ export const FormCheerleaders = () => {
       {formData.acepta_reglamento || document ? (
         <>
           <div className='grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6 md:grid-cols-2 mb-7'>
+            <AlertaCard text='Temporada' />
+            <InputField
+              type='async'
+              label='Selecciona la temporada *'
+              name='temporadaId'
+              required={true}
+              value={formData.temporadaId}
+              onChange={handleInputChange}
+              disabled={view}
+              loadOptions={loadOptionsTemporadas}
+              classInput='md:col-span-2'
+            />
+
             <AlertaCard text='Datos generales' />
             {formOptions.generalFields.map(
               ({ type, label, name, opcSelect, accept, required }) => (

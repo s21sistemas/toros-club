@@ -2,8 +2,13 @@ import { useEffect } from 'react'
 import { useModalStore } from '../store/useModalStore'
 import { usePaymentCheerStore } from '../store/usePaymentCheerStore'
 import { useCheerleaderStore } from '../store/useCheerleaderStore'
+import { useTemporadasStore } from '../store/useTemporadasStore'
 
 export const usePaymentCheer = () => {
+  const getDataTemporadas = useTemporadasStore(
+    (state) => state.getDataTemporadas
+  )
+
   // Store de modal
   const modalType = useModalStore((state) => state.modalType)
   const formData = useModalStore((state) => state.formData)
@@ -79,10 +84,24 @@ export const usePaymentCheer = () => {
 
       return data.map((cheer) => ({
         value: cheer.id,
-        label: `${cheer.nombre} ${cheer.apellido_p} ${cheer.apellido_m}`
+        label: `${cheer.nombre} ${cheer.apellido_p} ${cheer.apellido_m}`,
+        temporada: cheer.temporadaId
       }))
     } catch (error) {
       console.error('Error loading users:', error)
+      return []
+    }
+  }
+
+  const loadOptionsTemporadas = async () => {
+    try {
+      const data = await getDataTemporadas()
+      return data.map((temp) => ({
+        value: temp.id,
+        label: temp.temporada
+      }))
+    } catch (error) {
+      console.error('Error loading data:', error)
       return []
     }
   }
@@ -93,6 +112,7 @@ export const usePaymentCheer = () => {
     loading,
     handleSubmit,
     handleDelete,
-    loadOptions
+    loadOptions,
+    loadOptionsTemporadas
   }
 }

@@ -15,7 +15,8 @@ export const FormPaymentsPlayers = () => {
     handleNestedInputChange,
     handleInputChange
   } = useModal()
-  const { loadOptions } = usePaymentPlayer()
+
+  const { loadOptions, loadOptionsTemporadas } = usePaymentPlayer()
 
   return (
     <>
@@ -23,13 +24,35 @@ export const FormPaymentsPlayers = () => {
         <AlertaCard text='Jugador' />
         <InputField
           type='async'
-          label='Selecciona el jugador'
+          label='Selecciona el jugador *'
           name='jugador'
           required={true}
           value={formData.jugador || ''}
           onChange={handleInputChange}
           disabled={document ? true : view}
           loadOptions={loadOptions}
+          classInput='md:col-span-2'
+        />
+        <InputField
+          type='async'
+          label='Selecciona la temporada *'
+          name='temporadaId'
+          required={true}
+          value={formData.temporadaId}
+          onChange={handleInputChange}
+          disabled={true}
+          loadOptions={loadOptionsTemporadas}
+          classInput='md:col-span-2'
+        />
+
+        <InputField
+          type='text'
+          label='Categoría *'
+          name='categoria'
+          required={true}
+          value={formData.categoria}
+          onChange={handleInputChange}
+          disabled={true}
           classInput='md:col-span-2'
         />
 
@@ -49,7 +72,7 @@ export const FormPaymentsPlayers = () => {
                 value={value ? value : formData.pagos?.[0]?.[name] ?? ''}
                 onChange={handleNestedInputChange}
                 disabled={
-                  ['monto', 'total_abonado'].includes(name) ||
+                  ['total_abonado'].includes(name) ||
                   (formData.pagos?.[0]?.total_abonado >=
                     formData.pagos?.[0]?.monto &&
                     name === 'abono')
@@ -137,7 +160,7 @@ export const FormPaymentsPlayers = () => {
               value={formData.pagos?.[1]?.[name] ?? ''}
               onChange={handleNestedInputChange}
               disabled={
-                ['monto', 'total_abonado'].includes(name) ||
+                ['total_abonado'].includes(name) ||
                 (formData.pagos?.[1]?.total_abonado >=
                   formData.pagos?.[1]?.monto &&
                   name === 'abono')
@@ -225,7 +248,7 @@ export const FormPaymentsPlayers = () => {
               value={formData.pagos?.[2]?.[name] ?? ''}
               onChange={handleNestedInputChange}
               disabled={
-                ['monto', 'total_abonado'].includes(name) ||
+                ['total_abonado'].includes(name) ||
                 (formData.pagos?.[2]?.total_abonado >=
                   formData.pagos?.[2]?.monto &&
                   name === 'abono')
@@ -313,7 +336,7 @@ export const FormPaymentsPlayers = () => {
               value={formData.pagos?.[3]?.[name] ?? ''}
               onChange={handleNestedInputChange}
               disabled={
-                ['monto', 'total_abonado'].includes(name) ||
+                ['total_abonado'].includes(name) ||
                 (formData.pagos?.[3]?.total_abonado >=
                   formData.pagos?.[3]?.monto &&
                   name === 'abono')

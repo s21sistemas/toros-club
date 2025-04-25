@@ -8,9 +8,15 @@ import { formOptions } from '../../utils/formPaymentsCheer'
 import { CardAbonos } from '../CardAbonos'
 
 export const FormPaymentsCheer = () => {
-  const { view, formData, handleNestedInputChange, handleInputChange } =
-    useModal()
-  const { loadOptions } = usePaymentCheer()
+  const {
+    view,
+    document,
+    formData,
+    handleNestedInputChange,
+    handleInputChange
+  } = useModal()
+
+  const { loadOptions, loadOptionsTemporadas } = usePaymentCheer()
 
   return (
     <>
@@ -23,8 +29,20 @@ export const FormPaymentsCheer = () => {
           required={true}
           value={formData.porrista || ''}
           onChange={handleInputChange}
-          disabled={true}
+          disabled={document ? true : view}
           loadOptions={loadOptions}
+          classInput='md:col-span-2'
+        />
+
+        <InputField
+          type='async'
+          label='Selecciona la temporada *'
+          name='temporadaId'
+          required={true}
+          value={formData.temporadaId}
+          onChange={handleInputChange}
+          disabled={true}
+          loadOptions={loadOptionsTemporadas}
           classInput='md:col-span-2'
         />
 
@@ -43,7 +61,7 @@ export const FormPaymentsCheer = () => {
               value={formData.pagos?.[0]?.[name] ?? ''}
               onChange={handleNestedInputChange}
               disabled={
-                ['monto', 'total_abonado'].includes(name) ||
+                ['total_abonado'].includes(name) ||
                 (formData.pagos?.[0]?.total_abonado >=
                   formData.pagos?.[0]?.monto &&
                   name === 'abono')
@@ -131,7 +149,7 @@ export const FormPaymentsCheer = () => {
               value={formData.pagos?.[1]?.[name] ?? ''}
               onChange={handleNestedInputChange}
               disabled={
-                ['monto', 'total_abonado'].includes(name) ||
+                ['total_abonado'].includes(name) ||
                 (formData.pagos?.[1]?.total_abonado >=
                   formData.pagos?.[1]?.monto &&
                   name === 'abono')

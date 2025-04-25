@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { getCategoriaByTemp, getCategoriaByTempByNac } from '../api/categorias'
 import { useArticuloStore } from '../store/useArticuloStore'
 import { useModalStore } from '../store/useModalStore'
+import { useLocation } from 'react-router'
+import { obtenerCostoTemporada } from '../api/costos-jugador'
+import { obtenerCostoTemporada as obtCostTempPorri } from '../api/costos-porrista'
 
 export const useModal = () => {
   const modalType = useModalStore((state) => state.modalType)
@@ -25,6 +28,8 @@ export const useModal = () => {
 
   const [categoriaOptions, setCategoriaOptions] = useState([])
   const [categoriasCache, setCategoriasCache] = useState({})
+
+  const { pathname } = useLocation()
 
   useEffect(() => {
     const fetchCategorias = async () => {
@@ -103,6 +108,46 @@ export const useModal = () => {
         setCategoriasCache((prev) => ({ ...prev, [value]: categorias }))
         setCategoriaOptions(categorias)
       }
+    }
+
+    if (name === 'jugador' && pathname === '/pagos-jugadores') {
+      setFormData('temporadaId', value.temporada)
+      setFormData('categoria', value.categoria)
+
+      const costosTemporada = await obtenerCostoTemporada(value.temporada)
+
+      const costoInscripcion =
+        parseFloat(costosTemporada[0]?.inscripcion) || 500
+      const costoCoaching = parseFloat(costosTemporada[0]?.coaching) || 500
+      const costoTunel = parseFloat(costosTemporada[0]?.tunel) || 500
+      const costoBotiquin = parseFloat(costosTemporada[0]?.botiquin) || 500
+
+      const montoTotal =
+        costoInscripcion + costoCoaching + costoTunel + costoBotiquin
+
+      setFormData('pagos.0.submonto', costoInscripcion)
+      setFormData('pagos.0.monto', costoInscripcion)
+      setFormData('pagos.1.monto', costoCoaching)
+      setFormData('pagos.2.monto', costoTunel)
+      setFormData('pagos.3.monto', costoBotiquin)
+      setFormData('monto_total_pendiente', montoTotal)
+      setFormData('monto_total', montoTotal)
+    }
+
+    if (name === 'porrista' && pathname === '/pagos-porristas') {
+      setFormData('temporadaId', value.temporada)
+
+      const costosTemporada = await obtCostTempPorri(value.temporada)
+
+      const costoInscripcion =
+        parseFloat(costosTemporada[0]?.inscripcion) || 500
+      const costoCoaching = parseFloat(costosTemporada[0]?.coaching) || 500
+      const montoTotal = costoInscripcion + costoCoaching
+
+      setFormData('pagos.0.monto', costoInscripcion)
+      setFormData('pagos.1.monto', costoCoaching)
+      setFormData('monto_total_pendiente', montoTotal)
+      setFormData('monto_total', montoTotal)
     }
 
     const updatedFormData = {

@@ -11,6 +11,8 @@ const UsersPage = lazy(() => import('./pages/UsersPage'))
 const AdminPage = lazy(() => import('./pages/AdminPage'))
 const JugadoresPage = lazy(() => import('./pages/JugadoresPage'))
 const TemporadasPage = lazy(() => import('./pages/TemporadasPage'))
+const CostosJugadorPage = lazy(() => import('./pages/CostosJugadorPage'))
+const CostosPorristaPage = lazy(() => import('./pages/CostosPorristaPage'))
 const CategoriasPage = lazy(() => import('./pages/CategoriasPage'))
 const PorristasPage = lazy(() => import('./pages/PorristasPage'))
 const PagosJugadoresPage = lazy(() => import('./pages/PagosJugadoresPage'))
@@ -115,6 +117,22 @@ export default function App() {
                     element={
                       <ProtectedRoute permiso='categorias'>
                         <CategoriasPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/costos-jugador'
+                    element={
+                      <ProtectedRoute permiso='costos-jugador'>
+                        <CostosJugadorPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path='/costos-porrista'
+                    element={
+                      <ProtectedRoute permiso='costos-porrista'>
+                        <CostosPorristaPage />
                       </ProtectedRoute>
                     }
                   />

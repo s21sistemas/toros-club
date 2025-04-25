@@ -13,6 +13,8 @@ import {
 } from 'firebase/firestore'
 import { db } from './db/firebaseConfig'
 import dayjs from 'dayjs'
+import { obtenerCostoTemporada } from './costos-jugador'
+import { toast } from 'sonner'
 
 const jugadoresCollection = collection(db, 'jugadores')
 const pagosCollection = collection(db, 'pagos_jugadores')
@@ -134,6 +136,22 @@ const createPagoJugador = async (
   const actuallyDate = dayjs()
   const dateWeek = actuallyDate.add(1, 'week').format('YYYY/MM/DD')
 
+  const costosTemporada = await obtenerCostoTemporada(temporadaId)
+
+  if (costosTemporada.length === 0) {
+    toast.warning(
+      'No se encontraron costos para esta temporada. Se usarán valores por defecto.'
+    )
+  }
+
+  const costoInscripcion = parseFloat(costosTemporada[0]?.inscripcion) || 500
+  const costoCoaching = parseFloat(costosTemporada[0]?.coaching) || 500
+  const costoTunel = parseFloat(costosTemporada[0]?.tunel) || 500
+  const costoBotiquin = parseFloat(costosTemporada[0]?.botiquin) || 500
+
+  const montoTotal =
+    costoInscripcion + costoCoaching + costoTunel + costoBotiquin
+
   const pagosIniciales = {
     jugadorId,
     nombre: nombreJugador,
@@ -146,8 +164,8 @@ const createPagoJugador = async (
         descuento: '0',
         estatus: 'pendiente',
         fecha_pago: null,
-        submonto: 500,
-        monto: 500,
+        submonto: costoInscripcion,
+        monto: costoInscripcion,
         prorroga: false,
         fecha_limite: dateWeek,
         metodo_pago: null,
@@ -160,7 +178,7 @@ const createPagoJugador = async (
         estatus: 'pendiente',
         fecha_pago: null,
         fecha_limite: null,
-        monto: 500,
+        monto: costoCoaching,
         metodo_pago: null,
         abono: 'NO',
         abonos: [],
@@ -170,7 +188,7 @@ const createPagoJugador = async (
         tipo: 'Túnel',
         estatus: 'pendiente',
         fecha_pago: null,
-        monto: 500,
+        monto: costoTunel,
         metodo_pago: null,
         abono: 'NO',
         abonos: [],
@@ -180,7 +198,7 @@ const createPagoJugador = async (
         tipo: 'Botiquín',
         estatus: 'pendiente',
         fecha_pago: null,
-        monto: 500,
+        monto: costoBotiquin,
         metodo_pago: null,
         abono: 'NO',
         abonos: [],
@@ -188,8 +206,8 @@ const createPagoJugador = async (
       }
     ],
     monto_total_pagado: 0,
-    monto_total_pendiente: 2000,
-    monto_total: 2000,
+    monto_total_pendiente: montoTotal,
+    monto_total: montoTotal,
     fecha_registro: actuallyDate.format('YYYY-MM-DD')
   }
 

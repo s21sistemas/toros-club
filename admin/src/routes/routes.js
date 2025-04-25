@@ -28,7 +28,9 @@ export const routes = [
     Icon: NotepadTextDashed,
     children: [
       { path: '/temporadas', label: 'Temporadas' },
-      { path: '/categorias', label: 'Categorías' }
+      { path: '/categorias', label: 'Categorías' },
+      { path: '/costos-jugador', label: 'Costos jugador' },
+      { path: '/costos-porrista', label: 'Costos porrista' }
     ]
   },
   {
