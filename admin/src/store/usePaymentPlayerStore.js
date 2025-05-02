@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import {
   createPayment,
+  getPagosJugadoresTempCat,
   getPayments,
   removePayment,
   updatePayment
@@ -33,6 +34,13 @@ export const usePaymentPlayerStore = create((set, get) => ({
         set({ loading: false })
       }
     })
+  },
+
+  getDataFilter: async (temporadaId, categoria) => {
+    const data = await getPagosJugadoresTempCat(temporadaId, categoria)
+
+    unsubscribe = null
+    set({ payments: data })
   },
 
   addPayment: async (data) => {

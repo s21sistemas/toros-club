@@ -29,6 +29,9 @@ export const useModal = () => {
   const [categoriaOptions, setCategoriaOptions] = useState([])
   const [categoriasCache, setCategoriasCache] = useState({})
 
+  const [categoriaOptionsFilter, setCategoriaOptionsFilter] = useState([])
+  const [categoriasCacheFilter, setCategoriasCacheFilter] = useState({})
+
   const { pathname } = useLocation()
 
   useEffect(() => {
@@ -107,6 +110,17 @@ export const useModal = () => {
         categorias.unshift({ value: '', label: 'Selecciona una opción' })
         setCategoriasCache((prev) => ({ ...prev, [value]: categorias }))
         setCategoriaOptions(categorias)
+      }
+    }
+
+    if (name === 'temporadaIdFilter') {
+      if (categoriasCacheFilter[value]) {
+        setCategoriaOptionsFilter(categoriasCacheFilter[value])
+      } else {
+        const categorias = await getCategoriaByTemp(value)
+        categorias.unshift({ value: '', label: 'Selecciona una opción' })
+        setCategoriasCacheFilter((prev) => ({ ...prev, [value]: categorias }))
+        setCategoriaOptionsFilter(categorias)
       }
     }
 
@@ -322,6 +336,7 @@ export const useModal = () => {
     currentItem,
     setNestedFormData,
     categoriaOptions,
+    categoriaOptionsFilter,
     handleInputChange,
     handleFileChange,
     handleNestedInputChange,

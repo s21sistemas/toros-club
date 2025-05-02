@@ -1,3 +1,0 @@
-import{o as m,h as i,e as c,i as p,u,k as R,d as y}from"./index-BBEn_SVL.js";const d=y(c,"roles"),h=async r=>{try{return(await R(d,r)).id}catch(o){console.error("Error al agregar rol:",o)}},v=async r=>m(d,o=>{const a=o.docs.map(t=>{var n,l;const e=t.data();return{id:t.id,nombre:e.nombre,accesos:e.accesos,permisos:e.permisos,accesos_view:((n=e.accesos)==null?void 0:n.map(s=>s.value).join(`
-`))||"N/A",permisos_view:((l=e.permisos)==null?void 0:l.map(s=>s.value).join(`
-`))||"N/A"}});r(a)}),w=async(r,o)=>{try{const a=i(c,"roles",r);await u(a,o)}catch(a){console.error("Error al actualizar rol:",a)}},g=async r=>{try{const o=i(c,"roles",r);await p(o)}catch(o){console.error("Error al eliminar rol:",o)}};export{h as c,v as g,g as r,w as u};

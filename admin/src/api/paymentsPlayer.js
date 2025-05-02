@@ -4,7 +4,10 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  onSnapshot
+  onSnapshot,
+  getDocs,
+  where,
+  query
 } from 'firebase/firestore'
 import { db } from './db/firebaseConfig'
 import dayjs from 'dayjs'
@@ -51,6 +54,41 @@ export const getPayments = async (callback) => {
 
     callback(data)
   })
+}
+
+// Obtener costos por temporada
+export const getPagosJugadoresTempCat = async (temporadaId, categoria) => {
+  try {
+    const snapshot = await getDocs(
+      query(
+        pagosCollection,
+        where('temporadaId', '==', temporadaId),
+        where('categoria', '==', categoria)
+      )
+    )
+
+    const data = snapshot.docs.map((doc) => {
+      const pago = doc.data()
+      const pagos = pago.pagos || []
+
+      return {
+        id: doc.id,
+        jugador: { value: pago.jugadorId, label: pago.nombre },
+        prorroga: pagos.find((p) => p.tipo === 'Inscripción')?.prorroga,
+        fecha_limite: pagos.find((p) => p.tipo === 'Inscripción')?.fecha_limite,
+        inscripcion: pagos.find((p) => p.tipo === 'Inscripción')?.estatus,
+        tunel: pagos.find((p) => p.tipo === 'Túnel')?.estatus,
+        botiquin: pagos.find((p) => p.tipo === 'Botiquín')?.estatus,
+        coacheo: pagos.find((p) => p.tipo === 'Coaching')?.estatus,
+        ...doc.data()
+      }
+    })
+
+    return data
+  } catch (error) {
+    console.error('Error al obtener porristas:', error)
+    return []
+  }
 }
 
 // Actualizar un pago

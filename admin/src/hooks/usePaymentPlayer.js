@@ -3,10 +3,15 @@ import { useModalStore } from '../store/useModalStore'
 import { usePaymentPlayerStore } from '../store/usePaymentPlayerStore'
 import { usePlayerStore } from '../store/usePlayerStore'
 import { useTemporadasStore } from '../store/useTemporadasStore'
+import { toast } from 'sonner'
+import { useCalendarStore } from '../store/useCalendarStore'
 
-export const usePaymentPlayer = () => {
+export const usePaymentPlayer = (handleInputChange) => {
   const getDataTemporadas = useTemporadasStore(
     (state) => state.getDataTemporadas
+  )
+  const getPlayersByTempCat = useCalendarStore(
+    (state) => state.getPlayersByTempCat
   )
 
   // Store de modal
@@ -24,6 +29,7 @@ export const usePaymentPlayer = () => {
   const addPayment = usePaymentPlayerStore((state) => state.addPayment)
   const editPayment = usePaymentPlayerStore((state) => state.editPayment)
   const deletePayment = usePaymentPlayerStore((state) => state.deletePayment)
+  const getDataFilter = usePaymentPlayerStore((state) => state.getDataFilter)
 
   // Store de jugadores
   const getDataPlayers = usePlayerStore((state) => state.getDataPlayers)
@@ -152,6 +158,29 @@ export const usePaymentPlayer = () => {
     }
   }
 
+  const filterByTempCat = async (temporadaId, categoria) => {
+    if (!temporadaId || !categoria) return
+
+    getPlayersByTempCat(temporadaId, categoria)
+  }
+
+  const handleFiltrar = () => {
+    const temporadaId = formData.temporadaIdFilter
+    const categoria = formData.categoriaFilter
+
+    if (!temporadaId || !categoria)
+      toast.warning('Selecciona una temporada y una categoría')
+
+    filterByTempCat(temporadaId, categoria)
+    getDataFilter(temporadaId, categoria)
+  }
+
+  const handleClearFilter = () => {
+    handleInputChange({ target: { name: 'temporadaIdFilter', value: null } })
+    handleInputChange({ target: { name: 'categoriaFilter', value: null } })
+    getDataPaymentsPlayer()
+  }
+
   return {
     payments,
     getDataPaymentsPlayer,
@@ -159,6 +188,9 @@ export const usePaymentPlayer = () => {
     handleSubmit,
     handleDelete,
     loadOptions,
-    loadOptionsTemporadas
+    loadOptionsTemporadas,
+    handleFiltrar,
+    filterByTempCat,
+    handleClearFilter
   }
 }
