@@ -6,9 +6,14 @@ export const useModalStore = create((set) => ({
   currentItem: null,
   formData: {},
   firma: null,
+  firmaJugador: null,
 
   editFirma: (file) => {
     set({ firma: file })
+  },
+
+  editFirmaJugador: (file) => {
+    set({ firmaJugador: file })
   },
 
   openModal: (type, item = null, defaultData = {}) => {

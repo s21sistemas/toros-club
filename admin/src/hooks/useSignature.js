@@ -17,12 +17,31 @@ export const useSignature = () => {
     const signatureFile = base64ToFile(signatureData, 'firma.png')
     editFirma(signatureFile)
 
-    toast.success('Firma guardada')
+    toast.success('Firma del tutor guardada')
+  }
+
+  const sigCanvasJugador = useRef(null)
+  const editFirmaJugador = useModalStore((state) => state.editFirmaJugador)
+
+  const clearSignatureJugador = () => {
+    sigCanvasJugador.current.clear()
+    editFirmaJugador(null)
+  }
+
+  const saveSignatureJugador = () => {
+    const signatureData = sigCanvasJugador.current.toDataURL('image/png')
+    const signatureFile = base64ToFile(signatureData, 'firma_jugador.png')
+    editFirmaJugador(signatureFile)
+
+    toast.success('Firma del jugador/porrista guardada')
   }
 
   return {
     sigCanvas,
     clearSignature,
-    saveSignature
+    saveSignature,
+    sigCanvasJugador,
+    clearSignatureJugador,
+    saveSignatureJugador
   }
 }

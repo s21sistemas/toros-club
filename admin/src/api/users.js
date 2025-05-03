@@ -79,7 +79,7 @@ export const getUsers = async () => {
     // Agregar el nombre del rol a cada usuario
     const usersWithRoles = users.map((user) => ({
       ...user,
-      rol: roles[user.rol_id] || 'Sin rol',
+      rol: roles[user.rol_id] || 'Tutor',
       rol_id: { label: roles[user.rol_id], value: user.rol_id }
     }))
 

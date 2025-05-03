@@ -7,11 +7,13 @@ import {
   onSnapshot,
   getDocs,
   where,
-  query
+  query,
+  getDoc
 } from 'firebase/firestore'
 import { db } from './db/firebaseConfig'
 import dayjs from 'dayjs'
 import { createCaja } from './caja'
+import { removePlayer } from './players'
 
 const pagosCollection = collection(db, 'pagos_jugadores')
 
@@ -91,10 +93,45 @@ export const getPagosJugadoresTempCat = async (temporadaId, categoria) => {
   }
 }
 
+export const getPaymentById = async (id) => {
+  try {
+    const docRef = doc(db, 'pagos_jugadores', id)
+    const docSnap = await getDoc(docRef)
+
+    const payment = docSnap.data()
+    return {
+      ...payment,
+      id: docSnap.id
+    }
+  } catch (error) {
+    console.error('Error al obtener el jugador:', error)
+    return null
+  }
+}
+
+export const getPaymentByJugadorId = async (id) => {
+  try {
+    const snapshot = await getDocs(
+      query(pagosCollection, where('jugadorId', '==', id))
+    )
+
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+  } catch (error) {
+    console.error('Error al obtener el jugador:', error)
+    return null
+  }
+}
+
 // Actualizar un pago
 export const updatePayment = async (id, data) => {
   try {
     let newData = { ...data }
+
+    // DATAS
+    const inscripcion = data.pagos.find((p) => p.tipo === 'Inscripción')
+    const tunel = data.pagos.find((p) => p.tipo === 'Túnel')
+    const botiquin = data.pagos.find((p) => p.tipo === 'Botiquín')
+    const coach = data.pagos.find((p) => p.tipo === 'Coaching')
 
     // Actualizar coaching
     const index = data.pagos.findIndex((p) => p.tipo === 'Coaching')
@@ -122,12 +159,6 @@ export const updatePayment = async (id, data) => {
         }
       }
     }
-
-    // DATAS
-    const inscripcion = data.pagos.find((p) => p.tipo === 'Inscripción')
-    const tunel = data.pagos.find((p) => p.tipo === 'Túnel')
-    const botiquin = data.pagos.find((p) => p.tipo === 'Botiquín')
-    const coach = data.pagos.find((p) => p.tipo === 'Coaching')
 
     // Abono de inscripción
     if (inscripcion.abono === 'SI') {
@@ -271,9 +302,9 @@ export const updatePayment = async (id, data) => {
         nombre: dataEstatus.nombre,
         tabla: 'Jugador',
         concepto: 'Pago de túnel',
-        fecha_pago: tunel.estatus.fecha_pago || hoy,
-        total: tunel.estatus.monto || 0,
-        metodo_pago: tunel.estatus.metodo_pago || null
+        fecha_pago: tunel.fecha_pago || hoy,
+        total: tunel.monto || 0,
+        metodo_pago: tunel.metodo_pago || null
       }
       await createCaja(tunelPagos)
     }
@@ -337,6 +368,18 @@ export const updatePayment = async (id, data) => {
 
 // Eliminar un pago
 export const removePayment = async (id) => {
+  try {
+    const data = await getPaymentById(id)
+    await removePlayer(data.jugadorId)
+
+    const dataRef = doc(db, 'pagos_jugadores', id)
+    await deleteDoc(dataRef)
+  } catch (error) {
+    console.error('Error al eliminar pago:', error)
+  }
+}
+
+export const removePaymentByPlayer = async (id) => {
   try {
     const dataRef = doc(db, 'pagos_jugadores', id)
     await deleteDoc(dataRef)

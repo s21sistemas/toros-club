@@ -11,6 +11,8 @@ import { db } from './db/firebaseConfig'
 import dayjs from 'dayjs'
 import { obtenerCostoTemporada } from './costos-porrista'
 import { toast } from 'sonner'
+import { getPaymentByPorristaId, removePaymentByCheer } from './paymentsCheer'
+import { getUserByUID } from './players'
 
 const porristasCollection = collection(db, 'porristas')
 const pagosCollection = collection(db, 'pagos_porristas')
@@ -37,12 +39,19 @@ export const createCheerleader = async (data) => {
 
 // Obtener registro
 export const getCheerleaders = async (callback) => {
-  return onSnapshot(porristasCollection, (snapshot) => {
-    const data = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      foto: doc.data().foto_jugador,
-      ...doc.data()
-    }))
+  return onSnapshot(porristasCollection, async (snapshot) => {
+    const data = await Promise.all(
+      snapshot.docs.map(async (doc) => {
+        const user = await getUserByUID(doc.data().uid)
+
+        return {
+          id: doc.id,
+          ...doc.data(),
+          uid: { value: doc.data().uid, label: user?.nombre_completo }
+        }
+      })
+    )
+
     callback(data)
   })
 }
@@ -60,6 +69,9 @@ export const updateCheerleader = async (id, data) => {
 // Eliminar un porrista
 export const removeCheerleader = async (id) => {
   try {
+    const data = await getPaymentByPorristaId(id)
+    await removePaymentByCheer(data[0].id)
+
     const dataRef = doc(db, 'porristas', id)
     await deleteDoc(dataRef)
   } catch (error) {
@@ -85,6 +97,7 @@ const createPagoCheer = async (porristaId, nombrePorrista, temporadaId) => {
   const pagosIniciales = {
     porristaId,
     nombre: nombrePorrista,
+    temporadaId,
     pagos: [
       {
         tipo: 'Inscripción',

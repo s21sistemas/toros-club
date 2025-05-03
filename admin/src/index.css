@@ -43,10 +43,6 @@
   }
 }
 
-body {
-  overflow: hidden;
-}
-
 .sidebar {
   overflow: auto;
 }

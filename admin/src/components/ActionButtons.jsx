@@ -1,14 +1,25 @@
-import { Edit, Eye, FileText, Trash2 } from 'lucide-react'
+import { Edit, Eye, FileText, Paperclip, Trash2 } from 'lucide-react'
 import { useModal } from '../hooks/useModal'
 import { useLocation } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import { usePDFEquipamiento } from '../hooks/usePDFEquipamiento'
+import { toast } from 'sonner'
 
 export const ActionButtons = ({ data }) => {
   const { pathname } = useLocation()
   const { openModal } = useModal()
   const { permisos } = useAuth()
   const { downloadPDFEquipamiento } = usePDFEquipamiento()
+
+  const copyUid = async (uid) => {
+    try {
+      const link = `${window.location.origin}/subir-documentos?uid=${uid.value}`
+      await navigator.clipboard.writeText(link)
+      toast.success('Texto copiado al portapapeles')
+    } catch (err) {
+      console.error('Error al copiar al portapapeles:', err)
+    }
+  }
 
   return (
     <div className='flex justify-center space-x-2'>
@@ -56,6 +67,14 @@ export const ActionButtons = ({ data }) => {
               className='text-yellow-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 cursor-pointer transition-all'
             >
               <FileText className='h-5 w-5' />
+            </button>
+          )}
+          {(pathname === '/jugadores' || pathname === '/porristas') && (
+            <button
+              onClick={() => copyUid(data.uid)}
+              className='text-yellow-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 cursor-pointer transition-all'
+            >
+              <Paperclip className='h-5 w-5' />
             </button>
           )}
         </>

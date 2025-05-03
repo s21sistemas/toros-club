@@ -35,19 +35,19 @@ export const formOptions = {
     {
       required: true,
       type: 'text',
-      label: 'Club anterior',
+      label: 'Club anterior *',
       name: 'club_anterior'
     },
     {
       required: true,
       type: 'text',
-      label: 'Temporadas jugadas',
+      label: 'Temporadas jugadas *',
       name: 'temporadas_jugadas'
     },
     {
       required: true,
       type: 'select',
-      label: 'Mótivo de transferencia',
+      label: 'Mótivo de transferencia *',
       name: 'motivo_transferencia',
       opcSelect: [
         { value: '', label: 'Selecciona una opción' },
@@ -60,23 +60,23 @@ export const formOptions = {
   ],
 
   generalFields: [
-    { required: true, type: 'text', label: 'Nombre', name: 'nombre' },
+    { required: true, type: 'text', label: 'Nombre *', name: 'nombre' },
     {
       required: true,
       type: 'text',
-      label: 'Apellido paterno',
+      label: 'Apellido paterno *',
       name: 'apellido_p'
     },
     {
       required: true,
       type: 'text',
-      label: 'Apellido materno',
+      label: 'Apellido materno *',
       name: 'apellido_m'
     },
     {
       required: true,
       type: 'select',
-      label: 'Sexo',
+      label: 'Sexo *',
       name: 'sexo',
       opcSelect: [
         { value: '', label: 'Selecciona una opción' },
@@ -87,27 +87,27 @@ export const formOptions = {
     {
       required: true,
       type: 'text',
-      label: 'Dirección completa',
+      label: 'Dirección completa *',
       name: 'direccion'
     },
-    { required: true, type: 'number', label: 'Teléfono', name: 'telefono' },
+    { required: true, type: 'number', label: 'Teléfono *', name: 'telefono' },
     {
       required: true,
       type: 'date',
-      label: 'Fecha de nacimiento',
+      label: 'Fecha de nacimiento *',
       name: 'fecha_nacimiento'
     },
     {
       required: true,
       type: 'text',
-      label: 'Lugar de nacimiento',
+      label: 'Lugar de nacimiento *',
       name: 'lugar_nacimiento'
     },
-    { required: true, type: 'text', label: 'CURP', name: 'curp' },
+    { required: true, type: 'text', label: 'CURP *', name: 'curp' },
     {
       required: true,
       type: 'select',
-      label: 'Grado escolar',
+      label: 'Grado escolar *',
       name: 'grado_escolar',
       opcSelect: [
         { value: '', label: 'Selecciona una opción' },
@@ -119,17 +119,17 @@ export const formOptions = {
     {
       required: true,
       type: 'text',
-      label: 'Nombre de la escuela',
+      label: 'Nombre de la escuela *',
       name: 'nombre_escuela'
     },
-    { required: true, type: 'text', label: 'Alergias', name: 'alergias' },
+    { required: true, type: 'text', label: 'Alergias *', name: 'alergias' },
     {
       required: true,
       type: 'text',
-      label: 'Padecimientos',
+      label: 'Padecimientos *',
       name: 'padecimientos'
     },
-    { required: true, type: 'number', label: 'Peso (kg)', name: 'peso' },
+    { required: true, type: 'number', label: 'Peso (kg) *', name: 'peso' },
     {
       required: false,
       type: 'number',
@@ -142,11 +142,11 @@ export const formOptions = {
       label: 'Categoría *',
       name: 'categoria'
     },
-    { required: true, type: 'async', label: 'Tutor', name: 'uid' },
+    { required: true, type: 'async', label: 'Tutor *', name: 'uid' },
     {
       required: true,
       type: 'file',
-      label: 'Foto del jugador',
+      label: 'Foto del jugador *',
       name: 'foto',
       accept: 'image/*'
     }
@@ -156,28 +156,28 @@ export const formOptions = {
     {
       required: false,
       type: 'file',
-      label: 'CURP del jugador (PDF)',
-      name: 'curp_jugador',
+      label: 'CURP del jugador (PDF) *',
+      name: 'curp',
       accept: 'application/pdf'
     },
     {
       required: false,
       type: 'file',
-      label: 'INE del tutor (PDF)',
+      label: 'INE del tutor (PDF) *',
       name: 'ine_tutor',
       accept: 'application/pdf'
     },
     {
       required: false,
       type: 'file',
-      label: 'Acta de nacimiento (PDF)',
+      label: 'Acta de nacimiento (PDF) *',
       name: 'acta_nacimiento',
       accept: 'application/pdf'
     },
     {
       required: false,
       type: 'file',
-      label: 'Comprobante de domicilio (PDF)',
+      label: 'Comprobante de domicilio (PDF) *',
       name: 'comprobante_domicilio',
       accept: 'application/pdf'
     }

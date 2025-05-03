@@ -76,6 +76,7 @@ export const usePlayer = (handleInputChange) => {
         ...formData,
         curp: formData.curp.toUpperCase(),
         uid: formData.uid.value,
+        estatus: 'completo',
         activo:
           formData.tipo_inscripcion === 'reinscripcion'
             ? 'activo'
@@ -86,7 +87,7 @@ export const usePlayer = (handleInputChange) => {
 
       // Subir archivos de documentos (si existen)
       if (newFormData.documentos) {
-        const path = `jugadores/${newFormData.uid}/documentos/${newFormData.curp}`
+        const path = `jugadores/${newFormData.uid}/documentos`
         for (const key in newFormData.documentos) {
           const file = newFormData.documentos[key]
           if (file instanceof File) {
@@ -98,7 +99,7 @@ export const usePlayer = (handleInputChange) => {
 
       // Subir foto (si existe)
       if (newFormData.foto && newFormData.foto instanceof File) {
-        const path = `jugadores/${newFormData.uid}/fotos/${newFormData.curp}`
+        const path = `jugadores/${newFormData.uid}/fotos`
         const downloadURL = await uploadFileToFirebase(newFormData.foto, path)
         newFormData.foto = downloadURL
       }

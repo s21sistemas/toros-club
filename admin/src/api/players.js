@@ -15,6 +15,7 @@ import { db } from './db/firebaseConfig'
 import dayjs from 'dayjs'
 import { obtenerCostoTemporada } from './costos-jugador'
 import { toast } from 'sonner'
+import { getPaymentByJugadorId, removePaymentByPlayer } from './paymentsPlayer'
 
 const jugadoresCollection = collection(db, 'jugadores')
 const pagosCollection = collection(db, 'pagos_jugadores')
@@ -101,6 +102,9 @@ export const updatePlayer = async (id, data) => {
 // Eliminar un jugador
 export const removePlayer = async (id) => {
   try {
+    const data = await getPaymentByJugadorId(id)
+    await removePaymentByPlayer(data[0].id)
+
     const dataRef = doc(db, 'jugadores', id)
     await deleteDoc(dataRef)
   } catch (error) {
@@ -108,7 +112,7 @@ export const removePlayer = async (id) => {
   }
 }
 
-const getUserByUID = async (uid) => {
+export const getUserByUID = async (uid) => {
   try {
     const usersRef = collection(db, 'usuarios') // Referencia a la colección "usuarios"
     const q = query(usersRef, where('uid', '==', uid)) // Filtrar por id igual a uid

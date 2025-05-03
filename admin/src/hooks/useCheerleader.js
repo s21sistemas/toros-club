@@ -77,6 +77,7 @@ export const useCheerleader = () => {
         ...formData,
         curp: formData.curp.toUpperCase(),
         uid: formData.uid.value,
+        estatus: 'completo',
         documentos: {
           ...formData.documentos,
           firma: signatureFirma
@@ -85,7 +86,7 @@ export const useCheerleader = () => {
 
       // Subir archivos de documentos (si existen)
       if (newFormData.documentos) {
-        const path = `porristas/${newFormData.uid}/documentos/${newFormData.curp}`
+        const path = `porristas/${newFormData.uid}/documentos`
         for (const key in newFormData.documentos) {
           const file = newFormData.documentos[key]
           if (file instanceof File) {
@@ -98,7 +99,7 @@ export const useCheerleader = () => {
 
       // Subir foto (si existe)
       if (newFormData.foto && newFormData.foto instanceof File) {
-        const path = `porristas/${newFormData.uid}/fotos/${newFormData.curp}`
+        const path = `porristas/${newFormData.uid}/fotos`
         const downloadURL = await uploadFileToFirebase(newFormData.foto, path)
         newFormData.foto = downloadURL
       }
@@ -133,7 +134,7 @@ export const useCheerleader = () => {
     try {
       const data = await getDataUsers()
       return data.map((user) => ({
-        value: user.id,
+        value: user.uid,
         label: user.nombre_completo
       }))
     } catch (error) {

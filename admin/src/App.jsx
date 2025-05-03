@@ -35,6 +35,7 @@ const CajaPage = lazy(() => import('./pages/CajaPage'))
 const HistorialPage = lazy(() => import('./pages/HistorialPage'))
 const AlertaPage = lazy(() => import('./pages/AlertaPage'))
 const EnviarCorreoPage = lazy(() => import('./pages/EnviarCorreoPage'))
+const SubirDocumentosPage = lazy(() => import('./pages/SubirDocumentosPage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
 
 export default function App() {
@@ -52,244 +53,257 @@ export default function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<Loading />}>
-        {isAuthenticated ? (
-          <div className='flex h-screen bg-gray-100'>
-            <Toaster richColors position='bottom-right' />
-            <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-            <div className='flex-1 flex flex-col overflow-hidden'>
-              <Navbar toggleSidebar={toggleSidebar} />
-              <main className='flex-1 overflow-auto p-4'>
+        <Toaster richColors position='bottom-right' />
+
+        <Routes>
+          <Route path='/subir-documentos' element={<SubirDocumentosPage />} />
+
+          <Route
+            path='*'
+            element={
+              isAuthenticated ? (
+                <div className='flex h-screen bg-gray-100'>
+                  <Sidebar
+                    sidebarOpen={sidebarOpen}
+                    toggleSidebar={toggleSidebar}
+                  />
+                  <div className='flex-1 flex flex-col overflow-hidden'>
+                    <Navbar toggleSidebar={toggleSidebar} />
+                    <main className='flex-1 overflow-auto p-4'>
+                      <Routes>
+                        <Route index path='/' element={<AdminPage />} />
+
+                        <Route
+                          path='/jugadores'
+                          element={
+                            <ProtectedRoute permiso='jugadores'>
+                              <JugadoresPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/porristas'
+                          element={
+                            <ProtectedRoute permiso='porristas'>
+                              <PorristasPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/proveedores'
+                          element={
+                            <ProtectedRoute permiso='proveedores'>
+                              <ProveedoresPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/bancos'
+                          element={
+                            <ProtectedRoute permiso='bancos'>
+                              <BancosPage />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        <Route
+                          path='/utileria'
+                          element={
+                            <ProtectedRoute permiso='utileria'>
+                              <EquipamientoPage />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        <Route
+                          path='/temporadas'
+                          element={
+                            <ProtectedRoute permiso='temporadas'>
+                              <TemporadasPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/categorias'
+                          element={
+                            <ProtectedRoute permiso='categorias'>
+                              <CategoriasPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/costos-jugador'
+                          element={
+                            <ProtectedRoute permiso='costos-jugador'>
+                              <CostosJugadorPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/costos-porrista'
+                          element={
+                            <ProtectedRoute permiso='costos-porrista'>
+                              <CostosPorristaPage />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        <Route
+                          path='/pagos-jugadores'
+                          element={
+                            <ProtectedRoute permiso='pagos-jugadores'>
+                              <PagosJugadoresPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/pagos-porristas'
+                          element={
+                            <ProtectedRoute permiso='pagos-porristas'>
+                              <PagosPorristasPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/calendario-pagos'
+                          element={
+                            <ProtectedRoute permiso='calendario-pagos'>
+                              <CalendarioPagosPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/caja'
+                          element={
+                            <ProtectedRoute permiso='caja'>
+                              <CajaPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/historial'
+                          element={
+                            <ProtectedRoute permiso='historial'>
+                              <HistorialPage />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        <Route
+                          path='/almacen'
+                          element={
+                            <ProtectedRoute permiso='almacen'>
+                              <AlmacenPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/articulos'
+                          element={
+                            <ProtectedRoute permiso='articulos'>
+                              <ArticulosPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/gastos'
+                          element={
+                            <ProtectedRoute permiso='gastos'>
+                              <GastosPage />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        <Route
+                          path='/compras'
+                          element={
+                            <ProtectedRoute permiso='compras'>
+                              <ComprasPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/orden-compras'
+                          element={
+                            <ProtectedRoute permiso='orden-compras'>
+                              <OrdenCompraPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/cuentas-pagar'
+                          element={
+                            <ProtectedRoute permiso='cuentas-pagar'>
+                              <CuentasPagarPage />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        <Route
+                          path='/correos'
+                          element={
+                            <ProtectedRoute permiso='correos'>
+                              <AlertaPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/enviar-correo'
+                          element={
+                            <ProtectedRoute permiso='enviar-correo'>
+                              <EnviarCorreoPage />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        <Route
+                          path='/usuarios'
+                          element={
+                            <ProtectedRoute permiso='usuarios'>
+                              <UsersPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/roles'
+                          element={
+                            <ProtectedRoute permiso='roles'>
+                              <RolesPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/modulos'
+                          element={
+                            <ProtectedRoute permiso='modulos'>
+                              <ModulosPage />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        <Route
+                          path='/reportes'
+                          element={
+                            <ProtectedRoute permiso='reportes'>
+                              <ReportesPage />
+                            </ProtectedRoute>
+                          }
+                        />
+
+                        <Route path='/perfil' element={<PerfilPage />} />
+                        <Route path='/login' element={<Navigate to='/' />} />
+                      </Routes>
+                    </main>
+                  </div>
+                </div>
+              ) : (
                 <Routes>
-                  <Route index path='/' element={<AdminPage />} />
-
-                  <Route
-                    path='/jugadores'
-                    element={
-                      <ProtectedRoute permiso='jugadores'>
-                        <JugadoresPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/porristas'
-                    element={
-                      <ProtectedRoute permiso='porristas'>
-                        <PorristasPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/proveedores'
-                    element={
-                      <ProtectedRoute permiso='proveedores'>
-                        <ProveedoresPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/bancos'
-                    element={
-                      <ProtectedRoute permiso='bancos'>
-                        <BancosPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path='/utileria'
-                    element={
-                      <ProtectedRoute permiso='utileria'>
-                        <EquipamientoPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path='/temporadas'
-                    element={
-                      <ProtectedRoute permiso='temporadas'>
-                        <TemporadasPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/categorias'
-                    element={
-                      <ProtectedRoute permiso='categorias'>
-                        <CategoriasPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/costos-jugador'
-                    element={
-                      <ProtectedRoute permiso='costos-jugador'>
-                        <CostosJugadorPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/costos-porrista'
-                    element={
-                      <ProtectedRoute permiso='costos-porrista'>
-                        <CostosPorristaPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path='/pagos-jugadores'
-                    element={
-                      <ProtectedRoute permiso='pagos-jugadores'>
-                        <PagosJugadoresPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/pagos-porristas'
-                    element={
-                      <ProtectedRoute permiso='pagos-porristas'>
-                        <PagosPorristasPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/calendario-pagos'
-                    element={
-                      <ProtectedRoute permiso='calendario-pagos'>
-                        <CalendarioPagosPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/caja'
-                    element={
-                      <ProtectedRoute permiso='caja'>
-                        <CajaPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/historial'
-                    element={
-                      <ProtectedRoute permiso='historial'>
-                        <HistorialPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path='/almacen'
-                    element={
-                      <ProtectedRoute permiso='almacen'>
-                        <AlmacenPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/articulos'
-                    element={
-                      <ProtectedRoute permiso='articulos'>
-                        <ArticulosPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/gastos'
-                    element={
-                      <ProtectedRoute permiso='gastos'>
-                        <GastosPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path='/compras'
-                    element={
-                      <ProtectedRoute permiso='compras'>
-                        <ComprasPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/orden-compras'
-                    element={
-                      <ProtectedRoute permiso='orden-compras'>
-                        <OrdenCompraPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/cuentas-pagar'
-                    element={
-                      <ProtectedRoute permiso='cuentas-pagar'>
-                        <CuentasPagarPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path='/correos'
-                    element={
-                      <ProtectedRoute permiso='correos'>
-                        <AlertaPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/enviar-correo'
-                    element={
-                      <ProtectedRoute permiso='enviar-correo'>
-                        <EnviarCorreoPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path='/usuarios'
-                    element={
-                      <ProtectedRoute permiso='usuarios'>
-                        <UsersPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/roles'
-                    element={
-                      <ProtectedRoute permiso='roles'>
-                        <RolesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path='/modulos'
-                    element={
-                      <ProtectedRoute permiso='modulos'>
-                        <ModulosPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route
-                    path='/reportes'
-                    element={
-                      <ProtectedRoute permiso='reportes'>
-                        <ReportesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  <Route path='/perfil' element={<PerfilPage />} />
-                  <Route path='/login' element={<Navigate to='/' />} />
+                  <Route path='*' element={<LoginPage />} />
                 </Routes>
-              </main>
-            </div>
-          </div>
-        ) : (
-          <Routes>
-            <Route path='*' element={<LoginPage />} />
-          </Routes>
-        )}
+              )
+            }
+          />
+        </Routes>
       </Suspense>
     </BrowserRouter>
   )
