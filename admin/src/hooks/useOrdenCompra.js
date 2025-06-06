@@ -37,8 +37,6 @@ export const useOrdenCompra = () => {
 
     if (!parsed.success) {
       const errors = parsed.error.flatten().fieldErrors
-      console.log(errors)
-
       const firstError = Object.values(errors)[0][0]
       toast.error(firstError)
       return

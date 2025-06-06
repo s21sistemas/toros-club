@@ -48,6 +48,26 @@ export const obtenerCostoTemporada = async (temporadaId) => {
   }
 }
 
+// Obtener costos por temporada y categorias
+export const obtenerCostoTemporadaCategoria = async (
+  temporadaId,
+  categoria
+) => {
+  try {
+    const snapshot = await getDocs(
+      query(
+        costosCollection,
+        where('temporadaId', '==', temporadaId),
+        where('categoria', '==', categoria)
+      )
+    )
+    return snapshot.docs.map((doc) => doc.data())
+  } catch (error) {
+    console.error('Error al obtener jugadores:', error)
+    return []
+  }
+}
+
 // Actualizar un costo
 export const updateCostoJugador = async (id, data) => {
   try {

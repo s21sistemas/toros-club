@@ -55,6 +55,38 @@ export const usePaymentCheer = () => {
     if (!formData.pagos?.[1]?.total_abonado) {
       setNestedFormData('pagos.1.total_abonado', '0')
     }
+
+    if (!formData.pagos?.[0]?.total_abonado) {
+      setNestedFormData('pagos.0.total_abonado', '0')
+      const monto = formData.pagos?.[0]?.monto || '0'
+      setNestedFormData('pagos.0.total_restante', monto)
+    } else {
+      const total_abonado = parseFloat(formData.pagos?.[0]?.total_abonado)
+      const monto = parseFloat(formData.pagos?.[0]?.monto)
+
+      const total_restante = monto - total_abonado
+      setNestedFormData('pagos.0.total_restante', total_restante)
+    }
+
+    if (formData.pagos?.[0]?.estatus === 'pagado') {
+      setNestedFormData('pagos.0.total_restante', '0')
+    }
+
+    if (!formData.pagos?.[1]?.total_abonado) {
+      setNestedFormData('pagos.1.total_abonado', '0')
+      const monto = formData.pagos?.[1]?.monto || '0'
+      setNestedFormData('pagos.1.total_restante', monto)
+    } else {
+      const total_abonado = parseFloat(formData.pagos?.[1]?.total_abonado)
+      const monto = parseFloat(formData.pagos?.[1]?.monto)
+
+      const total_restante = monto - total_abonado
+      setNestedFormData('pagos.1.total_restante', total_restante)
+    }
+
+    if (formData.pagos?.[1]?.estatus === 'pagado') {
+      setNestedFormData('pagos.1.total_restante', '0')
+    }
   }, [formData.pagos, setNestedFormData])
 
   const handleSubmit = async (e) => {

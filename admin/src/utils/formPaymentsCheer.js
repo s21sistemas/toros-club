@@ -37,6 +37,18 @@ export const formOptions = {
     },
     {
       required: false,
+      type: 'number',
+      label: 'Total abonado',
+      name: 'total_abonado'
+    },
+    {
+      required: false,
+      type: 'number',
+      label: 'Total restante (monto final - total abonado)',
+      name: 'total_restante'
+    },
+    {
+      required: false,
       type: 'select',
       label: '¿Abonará? *',
       name: 'abono',
@@ -44,12 +56,6 @@ export const formOptions = {
         { value: 'NO', label: 'No' },
         { value: 'SI', label: 'Sí' }
       ]
-    },
-    {
-      required: false,
-      type: 'number',
-      label: 'Total abonado',
-      name: 'total_abonado'
     }
   ],
   coachingFields: [
@@ -85,6 +91,18 @@ export const formOptions = {
     },
     {
       required: false,
+      type: 'number',
+      label: 'Total abonado',
+      name: 'total_abonado'
+    },
+    {
+      required: false,
+      type: 'number',
+      label: 'Total restante (monto final - total abonado)',
+      name: 'total_restante'
+    },
+    {
+      required: false,
       type: 'select',
       label: '¿Abonará? *',
       name: 'abono',
@@ -92,12 +110,6 @@ export const formOptions = {
         { value: 'NO', label: 'No' },
         { value: 'SI', label: 'Sí' }
       ]
-    },
-    {
-      required: false,
-      type: 'number',
-      label: 'Total abonado',
-      name: 'total_abonado'
     }
   ],
   paymentsFields: [
@@ -110,13 +122,13 @@ export const formOptions = {
     {
       required: false,
       type: 'number',
-      label: 'Total pendiente *',
+      label: 'Total pendiente restante *',
       name: 'monto_total_pendiente'
     },
     {
       required: true,
       type: 'number',
-      label: 'Monto Total *',
+      label: 'Monto total a pagar *',
       name: 'monto_total'
     }
   ]

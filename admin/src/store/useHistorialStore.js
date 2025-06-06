@@ -1,6 +1,10 @@
 import { create } from 'zustand'
 import { toast } from 'sonner'
-import { getHistorial, removeHistorial } from '../api/historial'
+import {
+  getHistorial,
+  removeHistorial,
+  updateHistorial
+} from '../api/historial'
 
 let unsubscribe = null
 export const useHistorialStore = create((set, get) => ({
@@ -26,6 +30,22 @@ export const useHistorialStore = create((set, get) => ({
       } finally {
         set({ loading: false })
       }
+    })
+  },
+
+  editHistorial: async (data) => {
+    const promise = async () => {
+      try {
+        await updateHistorial(data.id, data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    toast.promise(promise(), {
+      loading: 'Actualizando...',
+      success: 'Actualizado correctamente',
+      error: 'Falló al eliminar.'
     })
   },
 

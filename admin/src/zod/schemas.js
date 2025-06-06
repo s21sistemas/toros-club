@@ -26,9 +26,6 @@ export const jugadorPorristaSchema = z.object({
     .string({ required_error: 'El teléfono es requerido' })
     .min(10, 'El teléfono debe tener al menos 10 dígitos')
     .max(15, 'El teléfono debe tener máximo 15 dígitos'),
-  curp: z
-    .string({ required_error: 'La CURP es requerida' })
-    .length(18, 'La CURP debe tener 18 caracteres'),
   peso: z
     .string({ required_error: 'El peso es requerido' })
     .min(1, 'El peso es requerido'),

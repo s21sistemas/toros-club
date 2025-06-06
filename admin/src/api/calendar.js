@@ -31,6 +31,8 @@ export const getPaymentsPlayers = (callback) => {
         (p) => p.tipo === 'Coaching'
       ).fecha_pago
 
+      const categoria = doc.data().categoria
+
       return {
         id: doc.id,
         nombre: pago.nombre,
@@ -40,7 +42,8 @@ export const getPaymentsPlayers = (callback) => {
         fecha_pago_ins,
         fecha_pago_coach,
         ins,
-        coach
+        coach,
+        categoria
       }
     })
     callback(data)
@@ -61,6 +64,8 @@ export const getPaymentsCheer = async (callback) => {
       const ins = pagos.find((p) => p.tipo === 'Inscripción').estatus
       const coach = pagos.find((p) => p.tipo === 'Coaching').estatus
 
+      const porristaId = doc.data().porristaId
+
       return {
         id: doc.id,
         nombre: pago.nombre,
@@ -68,7 +73,8 @@ export const getPaymentsCheer = async (callback) => {
         fecha_coach,
         fecha_regis,
         ins,
-        coach
+        coach,
+        porristaId
       }
     })
     callback(data)

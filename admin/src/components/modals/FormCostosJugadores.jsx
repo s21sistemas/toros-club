@@ -6,7 +6,7 @@ import { ButtonsModal } from './ButtonsModal'
 import { CancelButtonModal } from './CancelButtonModal'
 
 export const FormCostosJugadores = () => {
-  const { view, formData, handleInputChange } = useModal()
+  const { view, formData, handleInputChange, categoriaOptions } = useModal()
   const { loadOptionsTemporadas } = useCostosJugadores()
 
   return (
@@ -24,6 +24,7 @@ export const FormCostosJugadores = () => {
               value={formData[name] || ''}
               onChange={handleInputChange}
               disabled={view}
+              opcSelect={categoriaOptions}
               loadOptions={loadOptionsTemporadas}
               classInput='md:col-span-6'
             />

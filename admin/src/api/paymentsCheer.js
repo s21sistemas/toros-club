@@ -53,6 +53,7 @@ export const getPayments = async (callback) => {
         ...doc.data()
       }
     })
+
     callback(data)
   })
 }
@@ -86,9 +87,42 @@ export const getPaymentByPorristaId = async (id) => {
   }
 }
 
+// Función para limpiar los datos de cada pago (incluyendo todos los campos undefined)
+const cleanPagoData = (pago) => {
+  // Limpiar todos los campos dentro de cada pago
+  for (const key in pago) {
+    if (pago[key] === undefined) {
+      pago[key] = null // Si el campo es undefined, lo convierte en null
+    }
+  }
+  return pago
+}
+
+// Función de limpieza general para los datos
+const cleanData = (data) => {
+  // Limpiar los datos principales del pago
+  const cleanedData = Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [
+      key,
+      value === undefined ? null : value // Convertir `undefined` a `null` en el objeto principal
+    ])
+  )
+
+  // Limpiar específicamente los pagos dentro de los datos
+  if (cleanedData.pagos) {
+    cleanedData.pagos = cleanedData.pagos.map(cleanPagoData) // Limpiar cada pago en el array `pagos`
+  }
+
+  return cleanedData
+}
+
 // Actualizar un pago
 export const updatePayment = async (id, data) => {
   try {
+    let newData = { ...data }
+
+    newData = cleanData(newData)
+
     // DATAS
     const inscripcion = data.pagos.find((p) => p.tipo === 'Inscripción')
     const coach = data.pagos.find((p) => p.tipo === 'Coaching')
@@ -109,11 +143,20 @@ export const updatePayment = async (id, data) => {
 
       inscripcion.abono = 'NO'
 
+      if (
+        parseFloat(inscripcion.total_abonado) === parseFloat(inscripcion.monto)
+      ) {
+        inscripcion.estatus = 'pagado'
+        inscripcion.fecha_pago = data.fecha_abono_ins
+        inscripcion.metodo_pago = data.metodo_pago_abono_ins
+        inscripcion.total_restante = 0
+      }
+
       // Abonos en caja
       const inscripcionPagoCaja = {
         jugadorId: data.porristaId,
         nombre: data.nombre,
-        tabla: 'Jugador',
+        tabla: 'Porrista',
         concepto: 'Pago de inscripción (abono)',
         fecha_pago: data.fecha_abono_ins || hoy,
         total: data.cantidad_abono_ins || 0,
@@ -138,11 +181,18 @@ export const updatePayment = async (id, data) => {
 
       coach.abono = 'NO'
 
+      if (parseFloat(coach.total_abonado) === parseFloat(coach.monto)) {
+        coach.estatus = 'pagado'
+        coach.fecha_pago = data.fecha_abono_coach
+        coach.metodo_pago = data.metodo_pago_abono_coach
+        coach.total_restante = 0
+      }
+
       // Abonos en caja
       const coachPagoCaja = {
         jugadorId: data.porristaId,
         nombre: data.nombre,
-        tabla: 'Jugador',
+        tabla: 'Porrista',
         concepto: 'Pago de coach (abono)',
         fecha_pago: data.fecha_abono_coach || hoy,
         total: data.cantidad_abono_coach || 0,
@@ -159,6 +209,8 @@ export const updatePayment = async (id, data) => {
 
     const hoy = dayjs().format('YYYY-MM-DD')
     if (inscripcion.estatus === 'pagado') {
+      inscripcion.total_restante = 0
+
       const inscripcionPago = {
         jugadorId: dataEstatus.porristaId,
         nombre: dataEstatus.nombre,
@@ -172,6 +224,8 @@ export const updatePayment = async (id, data) => {
     }
 
     if (coach.estatus === 'pagado') {
+      coach.total_restante = 0
+
       const coachPago = {
         jugadorId: dataEstatus.porristaId,
         nombre: dataEstatus.nombre,
@@ -184,20 +238,20 @@ export const updatePayment = async (id, data) => {
       await createCaja(coachPago)
     }
 
-    delete data.porrista
-    delete data.coacheo
-    delete data.inscripcion
+    delete newData.porrista
+    delete newData.coacheo
+    delete newData.inscripcion
 
-    delete data.cantidad_abono_ins
-    delete data.fecha_abono_ins
-    delete data.metodo_pago_abono_ins
+    delete newData.cantidad_abono_ins
+    delete newData.fecha_abono_ins
+    delete newData.metodo_pago_abono_ins
 
-    delete data.cantidad_abono_coach
-    delete data.fecha_abono_coach
-    delete data.metodo_pago_abono_coach
+    delete newData.cantidad_abono_coach
+    delete newData.fecha_abono_coach
+    delete newData.metodo_pago_abono_coach
 
     const dataRef = doc(db, 'pagos_porristas', id)
-    await updateDoc(dataRef, data)
+    await updateDoc(dataRef, newData)
   } catch (error) {
     console.error('Error al actualizar pago:', error)
   }

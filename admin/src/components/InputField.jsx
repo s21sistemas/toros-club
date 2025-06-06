@@ -16,7 +16,8 @@ export const InputField = ({
   classInput = 'md:col-span-1',
   document = false,
   autofocus = false,
-  note = ''
+  note = '',
+  inputKey
 }) => {
   return (
     <div className={`sm:col-span-6 ${classInput}`}>
@@ -40,6 +41,7 @@ export const InputField = ({
       <div className='mt-1'>
         {type === 'select' ? (
           <select
+            key={opcSelect.map((o) => o.value).join('-')}
             name={name}
             id={name}
             value={value || ''}
@@ -75,6 +77,7 @@ export const InputField = ({
           </>
         ) : type === 'async-multi' ? (
           <AsyncSelect
+            key={inputKey}
             cacheOptions
             defaultOptions
             loadOptions={loadOptions}
@@ -149,8 +152,26 @@ export const InputField = ({
             autoFocus={autofocus}
             id={name}
             value={value || ''}
-            onChange={onChange}
+            min={type === 'number' ? 0 : undefined}
+            onChange={(e) => {
+              if (type === 'number') {
+                const v = parseFloat(e.target.value)
+                if (v >= 0 || isNaN(v)) onChange(e)
+              } else {
+                onChange(e)
+              }
+            }}
+            onKeyDown={
+              type === 'number'
+                ? (e) => {
+                    if (['e', 'E', '+', '-'].includes(e.key)) {
+                      e.preventDefault()
+                    }
+                  }
+                : undefined
+            }
             disabled={disabled}
+            onWheel={type === 'number' ? (e) => e.target.blur() : undefined}
             required={required}
             className='shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border disabled:bg-gray-100'
           />

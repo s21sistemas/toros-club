@@ -7,7 +7,7 @@ import { usePaymentCheer } from '../../hooks/usePaymentCheer'
 import { formOptions } from '../../utils/formPaymentsCheer'
 import { CardAbonos } from '../CardAbonos'
 
-export const FormPaymentsCheer = () => {
+export const FormPaymentsCheer = ({ user }) => {
   const {
     view,
     document,
@@ -41,7 +41,7 @@ export const FormPaymentsCheer = () => {
           required={true}
           value={formData.temporadaId}
           onChange={handleInputChange}
-          disabled={true}
+          disabled={view}
           loadOptions={loadOptionsTemporadas}
           classInput='md:col-span-2'
         />
@@ -61,10 +61,15 @@ export const FormPaymentsCheer = () => {
               value={formData.pagos?.[0]?.[name] ?? ''}
               onChange={handleNestedInputChange}
               disabled={
-                ['total_abonado'].includes(name) ||
+                ['total_abonado', 'monto', 'total_restante'].includes(name) ||
                 (formData.pagos?.[0]?.total_abonado >=
                   formData.pagos?.[0]?.monto &&
-                  name === 'abono')
+                  name === 'abono') ||
+                (formData.pagos?.[0]?.estatus === 'pagado' &&
+                  name !== 'estatus' &&
+                  name !== 'fecha_pago' &&
+                  name !== 'metodo_pago') ||
+                user?.coordinadora_porristas
                   ? true
                   : view
               }
@@ -81,7 +86,7 @@ export const FormPaymentsCheer = () => {
               name='cantidad_abono_ins'
               value={formData.cantidad_abono_ins ?? ''}
               onChange={handleInputChange}
-              disabled={view}
+              disabled={formData.pagos?.[0]?.estatus === 'pagado' ? true : view}
             />
 
             <InputField
@@ -91,7 +96,7 @@ export const FormPaymentsCheer = () => {
               name='fecha_abono_ins'
               value={formData.fecha_abono_ins ?? ''}
               onChange={handleInputChange}
-              disabled={view}
+              disabled={formData.pagos?.[0]?.estatus === 'pagado' ? true : view}
             />
 
             <InputField
@@ -111,7 +116,7 @@ export const FormPaymentsCheer = () => {
                 { value: 'cheques', label: ' Cheques' }
               ]}
               onChange={handleInputChange}
-              disabled={view}
+              disabled={formData.pagos?.[0]?.estatus === 'pagado' ? true : view}
             />
           </>
         )}
@@ -151,10 +156,14 @@ export const FormPaymentsCheer = () => {
               value={formData.pagos?.[1]?.[name] ?? ''}
               onChange={handleNestedInputChange}
               disabled={
-                ['total_abonado'].includes(name) ||
+                ['total_abonado', 'monto', 'total_restante'].includes(name) ||
                 (formData.pagos?.[1]?.total_abonado >=
                   formData.pagos?.[1]?.monto &&
-                  name === 'abono')
+                  name === 'abono') ||
+                (formData.pagos?.[1]?.estatus === 'pagado' &&
+                  name !== 'estatus' &&
+                  name !== 'fecha_pago' &&
+                  name !== 'metodo_pago')
                   ? true
                   : view
               }
@@ -171,7 +180,7 @@ export const FormPaymentsCheer = () => {
               name='cantidad_abono_coach'
               value={formData.cantidad_abono_coach ?? ''}
               onChange={handleInputChange}
-              disabled={view}
+              disabled={formData.pagos?.[1]?.estatus === 'pagado' ? true : view}
             />
 
             <InputField
@@ -181,7 +190,7 @@ export const FormPaymentsCheer = () => {
               name='fecha_abono_coach'
               value={formData.fecha_abono_coach ?? ''}
               onChange={handleInputChange}
-              disabled={view}
+              disabled={formData.pagos?.[1]?.estatus === 'pagado' ? true : view}
             />
 
             <InputField
@@ -201,7 +210,7 @@ export const FormPaymentsCheer = () => {
                 { value: 'cheques', label: ' Cheques' }
               ]}
               onChange={handleInputChange}
-              disabled={view}
+              disabled={formData.pagos?.[1]?.estatus === 'pagado' ? true : view}
             />
           </>
         )}
@@ -227,7 +236,7 @@ export const FormPaymentsCheer = () => {
         )}
 
         {/* Totales */}
-        <AlertaCard text='Pagos' />
+        <AlertaCard text='Total de pagos' />
         {formOptions.paymentsFields.map(
           ({ type, label, name, required, opcSelect }) => (
             <InputField
@@ -239,7 +248,15 @@ export const FormPaymentsCheer = () => {
               name={name}
               value={formData[name] ?? ''}
               onChange={handleNestedInputChange}
-              disabled={view}
+              disabled={
+                [
+                  'monto_total',
+                  'monto_total_pagado',
+                  'monto_total_pendiente'
+                ].includes(name)
+                  ? true
+                  : view
+              }
             />
           )
         )}

@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore'
 import { db } from './db/firebaseConfig'
 import dayjs from 'dayjs'
-import { obtenerCostoTemporada } from './costos-jugador'
+import { obtenerCostoTemporadaCategoria } from './costos-jugador'
 import { toast } from 'sonner'
 import { getPaymentByJugadorId, removePaymentByPlayer } from './paymentsPlayer'
 
@@ -94,6 +94,29 @@ export const updatePlayer = async (id, data) => {
   try {
     const dataRef = doc(db, 'jugadores', id)
     await updateDoc(dataRef, data)
+
+    // Buscar los pagos del jugador
+    const pagosRef = collection(db, 'pagos_jugadores')
+    const q = query(pagosRef, where('jugadorId', '==', id))
+    const snapshot = await getDocs(q)
+
+    // Preparar los nuevos valores
+    const nuevoNombre = `${data.nombre} ${data.apellido_p} ${data.apellido_m}`
+    const nuevaCategoria = data.categoria
+    const nuevaTemporadaId = data.temporadaId
+
+    // Actualizar cada pago encontrado
+    const updates = snapshot.docs.map(async (docPago) => {
+      const pagoRef = doc(db, 'pagos_jugadores', docPago.id)
+      await updateDoc(pagoRef, {
+        nombre: nuevoNombre,
+        categoria: nuevaCategoria,
+        temporadaId: nuevaTemporadaId
+      })
+    })
+
+    // Esperar a que todas las actualizaciones terminen
+    await Promise.all(updates)
   } catch (error) {
     console.error('Error al actualizar jugador:', error)
   }
@@ -140,12 +163,16 @@ const createPagoJugador = async (
   const actuallyDate = dayjs()
   const dateWeek = actuallyDate.add(1, 'week').format('YYYY/MM/DD')
 
-  const costosTemporada = await obtenerCostoTemporada(temporadaId)
+  const costosTemporada = await obtenerCostoTemporadaCategoria(
+    temporadaId,
+    categoria
+  )
 
   if (costosTemporada.length === 0) {
     toast.warning(
       'No se encontraron costos para esta temporada. Se usarán valores por defecto.'
     )
+    return
   }
 
   const costoInscripcion = parseFloat(costosTemporada[0]?.inscripcion) || 500

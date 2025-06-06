@@ -5,7 +5,7 @@ import { AlertaCard } from './AlertaCard'
 import dayjs from 'dayjs'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'dayjs/locale/es'
-import { useCalendar } from '../hooks/useCalendar'
+import { useCalendarCheer } from '../hooks/useCalendarCheer'
 import { useState } from 'react'
 import { ModalCalendar } from './modals/ModalCalendar'
 import { GlosarioColoresCalendario } from './GlosarioColoresCalendario'
@@ -15,7 +15,7 @@ dayjs.locale('es')
 const localizer = dayjsLocalizer(dayjs)
 
 export const CalendarioPorristas = () => {
-  const { eventsCheerleaders } = useCalendar()
+  const { eventsCheerleaders } = useCalendarCheer()
   const [toggle, setToggle] = useState(false)
   const [info, setInfo] = useState({})
 
@@ -26,7 +26,7 @@ export const CalendarioPorristas = () => {
       const nombre = props.event.title
       const coach = props.event.coach
       const ins = props.event.ins
-      const url = `/pagos-porristas?nombre=${nombre}`
+      const url = `/pagos-porristas?nombre=${encodeURIComponent(nombre)}`
       setInfo({ nombre, pago_ins, pago_coach, coach, ins, url })
     }
 

@@ -32,7 +32,7 @@ export const ActionButtons = ({ data }) => {
         </button>
       ) : (
         <>
-          {permisos?.includes('consultar') && (
+          {permisos?.includes('consultar') && pathname !== '/historial' && (
             <button
               onClick={() => openModal('view', data)}
               className='text-indigo-600 hover:text-indigo-900 p-1 rounded-md hover:bg-indigo-50 cursor-pointer transition-all'
@@ -52,7 +52,8 @@ export const ActionButtons = ({ data }) => {
 
           {permisos?.includes('eliminar') &&
             pathname !== '/cuentas-pagar' &&
-            pathname !== '/correos' && (
+            pathname !== '/correos' &&
+            pathname !== '/historial' && (
               <button
                 onClick={() => openModal('delete', data)}
                 className='text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 cursor-pointer transition-all'
@@ -69,6 +70,7 @@ export const ActionButtons = ({ data }) => {
               <FileText className='h-5 w-5' />
             </button>
           )}
+          
           {(pathname === '/jugadores' || pathname === '/porristas') && (
             <button
               onClick={() => copyUid(data.uid)}

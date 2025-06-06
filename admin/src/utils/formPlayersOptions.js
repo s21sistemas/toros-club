@@ -25,10 +25,10 @@ export const formOptions = {
     { label: 'Mini Flag (N/C) - Flag Femenil', value: 'Mini Flag (N/C)' }
   ],
 
-  reinscripcionOptions: [
+  activoOptions: [
     { value: '', label: 'Selecciona una opción' },
     { value: 'no activo', label: 'No activo actualmente' },
-    { value: 'activo', label: 'Reinscrito' }
+    { value: 'activo', label: 'Activo' }
   ],
 
   transferenciaFields: [
@@ -103,7 +103,7 @@ export const formOptions = {
       label: 'Lugar de nacimiento *',
       name: 'lugar_nacimiento'
     },
-    { required: true, type: 'text', label: 'CURP *', name: 'curp' },
+    { required: false, type: 'text', label: 'CURP', name: 'curp' },
     {
       required: true,
       type: 'select',
@@ -142,13 +142,25 @@ export const formOptions = {
       label: 'Categoría *',
       name: 'categoria'
     },
-    { required: true, type: 'async', label: 'Tutor *', name: 'uid' },
     {
       required: true,
       type: 'file',
       label: 'Foto del jugador *',
       name: 'foto',
       accept: 'image/*'
+    },
+    { required: true, type: 'async', label: 'Tutor *', name: 'uid' },
+    {
+      required: true,
+      type: 'text',
+      label: 'Celular del tutor *',
+      name: 'celular_tutor'
+    },
+    {
+      required: true,
+      type: 'text',
+      label: 'Correo del tutor *',
+      name: 'correo_tutor'
     }
   ],
 
@@ -156,28 +168,28 @@ export const formOptions = {
     {
       required: false,
       type: 'file',
-      label: 'CURP del jugador (PDF) *',
+      label: 'CURP del jugador (PDF)',
       name: 'curp',
       accept: 'application/pdf'
     },
     {
       required: false,
       type: 'file',
-      label: 'INE del tutor (PDF) *',
+      label: 'INE del tutor (PDF)',
       name: 'ine_tutor',
       accept: 'application/pdf'
     },
     {
       required: false,
       type: 'file',
-      label: 'Acta de nacimiento (PDF) *',
+      label: 'Acta de nacimiento (PDF)',
       name: 'acta_nacimiento',
       accept: 'application/pdf'
     },
     {
       required: false,
       type: 'file',
-      label: 'Comprobante de domicilio (PDF) *',
+      label: 'Comprobante de domicilio (PDF)',
       name: 'comprobante_domicilio',
       accept: 'application/pdf'
     }

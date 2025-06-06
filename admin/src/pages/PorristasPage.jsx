@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BaseForm } from '../components/BaseForm'
 import { BaseTable } from '../components/BaseTable'
 import { ModalDelete } from '../components/ModalDelete'
 import { useModal } from '../hooks/useModal'
 import { useCheerleader } from '../hooks/useCheerleader'
 import { FormCheerleaders } from '../components/modals/FormCheerleaders'
+import { useAuth } from '../hooks/useAuth'
 
 const columns = [
   { key: 'nombre', name: 'Nombre' },
@@ -14,6 +15,8 @@ const columns = [
 ]
 
 export default function PorristasPage() {
+  const { user } = useAuth()
+
   const { modalType, currentItem } = useModal()
 
   const {
@@ -24,6 +27,8 @@ export default function PorristasPage() {
     handleDelete
   } = useCheerleader()
 
+  const [filterData, setFilterData] = useState([])
+
   useEffect(() => {
     const getUser = async () => {
       return await getDataCheerleaders()
@@ -32,11 +37,25 @@ export default function PorristasPage() {
     getUser()
   }, [getDataCheerleaders])
 
+  useEffect(() => {
+    if (user?.coordinadora_porristas) {
+      const porristas = user.porristaId.map((p) => p.value)
+
+      const cheerFilter = cheerleader.filter((data) =>
+        porristas.includes(data.id)
+      )
+
+      setFilterData(cheerFilter)
+    } else {
+      setFilterData(cheerleader)
+    }
+  }, [cheerleader])
+
   return (
     <div className='md:p-4 bg-gray-100'>
       <BaseTable
         columns={columns}
-        data={cheerleader}
+        data={filterData}
         title='Porristas'
         loading={loading}
       />

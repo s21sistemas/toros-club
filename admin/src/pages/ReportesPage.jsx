@@ -40,7 +40,7 @@ export default function ReportesPage() {
           onClick={generarReportePagos}
           className='bg-amber-600 hover:bg-amber-700 text-white font-medium py-4 px-6 rounded-lg shadow transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 cursor-pointer'
         >
-          Reporte de pagos pendientes
+          Reporte de pagos
         </button>
 
         <button

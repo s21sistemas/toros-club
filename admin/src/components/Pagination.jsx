@@ -42,19 +42,35 @@ export const Pagination = () => {
               <span className='sr-only'>Anterior</span>
               <ChevronLeft className='h-5 w-5' />
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => goToPage(page)}
-                className={`relative inline-flex items-center cursor-pointer px-4 py-2 border text-sm font-medium ${
-                  currentPage === page
-                    ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+            {(() => {
+              const pagesToShow = 5
+              let start = Math.max(1, currentPage - Math.floor(pagesToShow / 2))
+              let end = start + pagesToShow - 1
+
+              if (end > totalPages) {
+                end = totalPages
+                start = Math.max(1, end - pagesToShow + 1)
+              }
+
+              const pages = []
+              for (let i = start; i <= end; i++) {
+                pages.push(i)
+              }
+
+              return pages.map((page) => (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`relative inline-flex items-center cursor-pointer px-4 py-2 border text-sm font-medium ${
+                    currentPage === page
+                      ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))
+            })()}
             <button
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}

@@ -8,6 +8,12 @@ export const formOptions = {
     },
     {
       required: true,
+      type: 'select',
+      label: 'Categoría *',
+      name: 'categoria'
+    },
+    {
+      required: true,
       type: 'number',
       step: '0.01',
       label: 'Costo de inscripción *',

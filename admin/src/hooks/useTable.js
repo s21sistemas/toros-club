@@ -1,8 +1,10 @@
 import { useMemo } from 'react'
 import { useTableStore } from '../store/useTableStore'
 import dayjs from 'dayjs'
+import { useLocation } from 'react-router'
 
 export const useTable = () => {
+  const { pathname } = useLocation()
   const data = useTableStore((state) => state.data)
   const itemsPerPage = useTableStore((state) => state.itemsPerPage)
   const filterKeys = useTableStore((state) => state.filterKeys)
@@ -51,8 +53,6 @@ export const useTable = () => {
     const limit = item.fecha_limite ? dayjs(item.fecha_limite) : null
     const estatus = item[columnKey]
 
-    const coachingPayment = item.pagos?.find((pago) => pago.tipo === 'Coaching')
-
     if (['pagado', 'pagada', 'Pagado', 'Pagada'].includes(estatus)) {
       return 'bg-green-700'
     }
@@ -61,29 +61,56 @@ export const useTable = () => {
       return 'bg-[#e89b0b]'
     }
 
-    if (
-      columnKey === 'coacheo' &&
-      (!coachingPayment?.fecha_limite ||
-        dayjs(coachingPayment.fecha_limite).isBefore(actually))
-    ) {
-      return 'bg-red-600/80'
-    }
+    if (pathname === '/pagos-jugadores' || pathname === '/pagos-porristas') {
+      const abonoIns = item.pagos[0]?.abonos?.length
+      const abonoCoach = item.pagos[1]?.abonos?.length
+      const abonoTun = item.pagos[2]?.abonos?.length
+      const abonoBot = item.pagos[3]?.abonos?.length
 
-    if (
-      columnKey === 'coacheo' &&
-      coachingPayment?.fecha_limite &&
-      dayjs(coachingPayment.fecha_limite).isAfter(actually)
-    ) {
-      return 'bg-[#e89b0b]'
-    }
+      const coachingPayment = item.pagos?.find(
+        (pago) => pago.tipo === 'Coaching'
+      )
 
-    if (
-      columnKey === 'inscripcion' &&
-      item.prorroga == 'true' &&
-      limit &&
-      actually.isBefore(limit)
-    ) {
-      return 'bg-[#e89b0b]'
+      if (columnKey === 'inscripcion' && abonoIns > 0) {
+        return 'bg-gradient-to-r from-[#e89b0b] to-red-500'
+      }
+
+      if (columnKey === 'tunel' && abonoTun > 0) {
+        return 'bg-gradient-to-r from-[#e89b0b] to-red-500'
+      }
+
+      if (columnKey === 'botiquin' && abonoBot > 0) {
+        return 'bg-gradient-to-r from-[#e89b0b] to-red-500'
+      }
+
+      if (
+        columnKey === 'coacheo' &&
+        coachingPayment?.fecha_limite &&
+        dayjs(coachingPayment.fecha_limite).isAfter(actually)
+      ) {
+        return 'bg-[#e89b0b]'
+      }
+
+      if (columnKey === 'coacheo' && abonoCoach > 0) {
+        return 'bg-gradient-to-r from-[#e89b0b] to-red-500'
+      }
+
+      if (
+        columnKey === 'coacheo' &&
+        (!coachingPayment?.fecha_limite ||
+          dayjs(coachingPayment.fecha_limite).isBefore(actually))
+      ) {
+        return 'bg-red-600/80'
+      }
+
+      if (
+        columnKey === 'inscripcion' &&
+        item.prorroga == 'true' &&
+        limit &&
+        actually.isBefore(limit)
+      ) {
+        return 'bg-[#e89b0b]'
+      }
     }
 
     return 'bg-red-600/80'

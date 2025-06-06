@@ -6,6 +6,7 @@ import { uploadFileToFirebase } from '../utils/uploadFile'
 import { toast } from 'sonner'
 import { jugadorPorristaSchema } from '../zod/schemas'
 import { useTemporadasStore } from '../store/useTemporadasStore'
+import { getCoordinadorasPorristas } from '../api/users'
 
 export const useCheerleader = () => {
   // Store de users
@@ -73,11 +74,23 @@ export const useCheerleader = () => {
     })
 
     try {
+      let estatus = 'incompleto'
+
+      if (
+        formData.curp &&
+        formData.documentos?.curp &&
+        formData.documentos?.ine_tutor &&
+        formData.documentos?.acta_nacimiento &&
+        formData.documentos?.comprobante_domicilio
+      ) {
+        estatus = 'completo'
+      }
+
       const newFormData = {
         ...formData,
-        curp: formData.curp.toUpperCase(),
+        curp: formData?.curp?.toUpperCase() || '',
         uid: formData.uid.value,
-        estatus: 'completo',
+        estatus,
         documentos: {
           ...formData.documentos,
           firma: signatureFirma
@@ -135,7 +148,9 @@ export const useCheerleader = () => {
       const data = await getDataUsers()
       return data.map((user) => ({
         value: user.uid,
-        label: user.nombre_completo
+        label: user.nombre_completo,
+        celular: user.celular,
+        correo: user.correo
       }))
     } catch (error) {
       console.error('Error loading users:', error)
@@ -156,6 +171,19 @@ export const useCheerleader = () => {
     }
   }
 
+  const loadOptionsCoordPorristas = async () => {
+    try {
+      const data = await getCoordinadorasPorristas()
+      return data.map((cheer) => ({
+        value: cheer.id,
+        label: cheer.nombre_completo
+      }))
+    } catch (error) {
+      console.error('Error loading data:', error)
+      return []
+    }
+  }
+
   return {
     loadOptions,
     cheerleader,
@@ -164,6 +192,7 @@ export const useCheerleader = () => {
     handleSubmit,
     handleDelete,
     handleReglamento,
-    loadOptionsTemporadas
+    loadOptionsTemporadas,
+    loadOptionsCoordPorristas
   }
 }

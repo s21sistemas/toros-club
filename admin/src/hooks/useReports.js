@@ -9,6 +9,8 @@ import { useState } from 'react'
 import { useTemporadasStore } from '../store/useTemporadasStore'
 import { getCategoriaByTemp } from '../api/categorias'
 import { useProveedorStore } from '../store/useProveedorStore'
+import { getCoordinadora } from '../api/users'
+import { getUserByUID } from '../api/players'
 
 export const useReports = () => {
   const getDataBanks = useBankStore((state) => state.getDataBanks)
@@ -38,6 +40,7 @@ export const useReports = () => {
       if (value.value === 'todas') return
 
       const categorias = await getCategoriaByTemp(value)
+      categorias.unshift({ value: 'todas', label: 'TODAS LAS CATEGORÍAS' })
       categorias.unshift({ value: '', label: 'Selecciona una opción' })
       setCategoriaOptions(categorias)
     }
@@ -132,13 +135,7 @@ export const useReports = () => {
       const pagosJugadoresRef = collection(db, 'pagos_jugadores')
       const snapshot = await getDocs(pagosJugadoresRef)
 
-      const jugadoresConPendiente = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((jugador) =>
-          jugador.pagos?.some((pago) => pago.estatus === 'pendiente')
-        )
-
-      return jugadoresConPendiente
+      return snapshot.docs.map((doc) => doc.data())
     } catch (error) {
       console.error('Error al obtener pagos de inscripción pendientes:', error)
       return []
@@ -197,8 +194,8 @@ export const useReports = () => {
     try {
       let gastosRef = collection(db, 'gastos')
 
-      const fechaInicio = dayjs(info.fecha_inicio, 'YYYY/MM/DD').toDate()
-      const fechaFin = dayjs(info.fecha_fin, 'YYYY/MM/DD').toDate()
+      const fechaInicio = dayjs(info.fecha_inicio).toDate()
+      const fechaFin = dayjs(info.fecha_fin).toDate()
 
       let filtros = [
         where('fecha', '>=', fechaInicio),
@@ -226,8 +223,8 @@ export const useReports = () => {
     try {
       let comprasRef = collection(db, 'compras')
 
-      const fechaInicio = dayjs(info.fecha_inicio, 'YYYY/MM/DD').toDate()
-      const fechaFin = dayjs(info.fecha_fin, 'YYYY/MM/DD').toDate()
+      const fechaInicio = dayjs(info.fecha_inicio).toDate()
+      const fechaFin = dayjs(info.fecha_fin).toDate()
 
       let filtros = [
         where('fecha', '>=', fechaInicio),
@@ -259,8 +256,8 @@ export const useReports = () => {
     try {
       let ordenesRef = collection(db, 'ordenes_compra')
 
-      const fechaInicio = dayjs(info.fecha_inicio, 'YYYY/MM/DD').toDate()
-      const fechaFin = dayjs(info.fecha_fin, 'YYYY/MM/DD').toDate()
+      const fechaInicio = dayjs(info.fecha_inicio).toDate()
+      const fechaFin = dayjs(info.fecha_fin).toDate()
 
       let filtros = [
         where('fecha', '>=', fechaInicio),
@@ -292,8 +289,8 @@ export const useReports = () => {
     try {
       let comprasRef = collection(db, 'ordenes_compra')
 
-      const fechaInicio = dayjs(info.fecha_inicio, 'YYYY/MM/DD').toDate()
-      const fechaFin = dayjs(info.fecha_fin, 'YYYY/MM/DD').toDate()
+      const fechaInicio = dayjs(info.fecha_inicio).toDate()
+      const fechaFin = dayjs(info.fecha_fin).toDate()
 
       let filtros = [
         where('fecha', '>=', fechaInicio),
@@ -322,13 +319,24 @@ export const useReports = () => {
   const obtenerJugadoresTempCat = async (filtro = false, info) => {
     try {
       let jugadoresRef = collection(db, 'jugadores')
-      const consulta = filtro
-        ? query(
-            jugadoresRef,
-            where('temporadaId', '==', info.temporadaId),
-            where('categoria', '==', info.categoria)
-          )
-        : jugadoresRef
+      let consulta
+
+      if (!filtro) {
+        consulta = jugadoresRef
+      } else if (info.categoria === 'todas') {
+        consulta = query(
+          jugadoresRef,
+          where('temporadaId', '==', info.temporadaId)
+        )
+      } else if (info.categoria !== 'todas') {
+        consulta = query(
+          jugadoresRef,
+          where('temporadaId', '==', info.temporadaId),
+          where('categoria', '==', info.categoria)
+        )
+      } else {
+        consulta = jugadoresRef
+      }
 
       const snapshot = await getDocs(consulta)
       return snapshot.docs.map((doc) => doc.data())
@@ -341,8 +349,8 @@ export const useReports = () => {
   const obtenerDatosPorColeccionBanco = async (coleccion, info) => {
     const ref = collection(db, coleccion)
 
-    const fechaInicio = dayjs(info.fecha_inicio, 'YYYY/MM/DD').toDate()
-    const fechaFin = dayjs(info.fecha_fin, 'YYYY/MM/DD').toDate()
+    const fechaInicio = dayjs(info.fecha_inicio).toDate()
+    const fechaFin = dayjs(info.fecha_fin).toDate()
 
     let filtros = [
       where('fecha', '>=', fechaInicio),
@@ -363,8 +371,8 @@ export const useReports = () => {
     try {
       let historialRef = collection(db, 'historial')
 
-      const fechaInicio = dayjs(info.fecha_inicio, 'YYYY/MM/DD').toDate()
-      const fechaFin = dayjs(info.fecha_fin, 'YYYY/MM/DD').toDate()
+      const fechaInicio = dayjs(info.fecha_inicio).toDate()
+      const fechaFin = dayjs(info.fecha_fin).toDate()
 
       let filtros = [
         where('fecha_recibido_filter', '>=', fechaInicio),
@@ -373,6 +381,10 @@ export const useReports = () => {
 
       if (info.metodo_pago !== 'todos') {
         filtros.push(where('metodo_pago', '==', info.metodo_pago))
+      }
+
+      if (info.coordinadora.value !== 'todas') {
+        filtros.push(where('coordinadora', '==', info.coordinadora.label))
       }
 
       const consulta = query(historialRef, ...filtros)
@@ -491,19 +503,66 @@ export const useReports = () => {
     const data = pagosData.map((pago) => {
       const pagos = pago.pagos || []
 
+      const montoIns = parseFloat(
+        pagos.find((p) => p.tipo === 'Inscripción')?.monto
+      )
+      const totalAbonadoIns = parseFloat(
+        pagos.find((p) => p.tipo === 'Inscripción')?.total_abonado
+      )
+      const totalRestanteIns = montoIns - totalAbonadoIns
+
+      const montoCoach = parseFloat(
+        pagos.find((p) => p.tipo === 'Coaching')?.monto
+      )
+      const totalAbonadoCoach = parseFloat(
+        pagos.find((p) => p.tipo === 'Coaching')?.total_abonado
+      )
+      const totalRestanteCoach = montoCoach - totalAbonadoCoach
+
+      const montoTunel = parseFloat(
+        pagos.find((p) => p.tipo === 'Túnel')?.monto
+      )
+      const totalAbonadoTunel = parseFloat(
+        pagos.find((p) => p.tipo === 'Túnel')?.total_abonado
+      )
+      const totalRestanteTunel = montoTunel - totalAbonadoTunel
+
+      const montoBotiquin = parseFloat(
+        pagos.find((p) => p.tipo === 'Botiquín')?.monto
+      )
+      const totalAbonadoBoti = parseFloat(
+        pagos.find((p) => p.tipo === 'Botiquín')?.total_abonado
+      )
+      const totalRestanteBoti = montoBotiquin - totalAbonadoBoti
+
       return {
+        temporada: pago.temporadaId.label,
+        categoria: pago.categoria,
         nombre: pago.nombre,
+
         inscripcion: pagos.find((p) => p.tipo === 'Inscripción')?.estatus,
-        monto_ins: pagos.find((p) => p.tipo === 'Inscripción')?.monto,
+        monto_ins: `$${montoIns}`,
+        total_abonado_ins: `$${totalAbonadoIns}`,
+        total_restnate_ins: `$${totalRestanteIns}`,
+
         coacheo: pagos.find((p) => p.tipo === 'Coaching')?.estatus,
-        monto_coach: pagos.find((p) => p.tipo === 'Coaching')?.monto,
+        monto_coach: `$${montoCoach}`,
+        total_abonado_coach: `$${totalAbonadoCoach}`,
+        total_restnate_coach: `$${totalRestanteCoach}`,
+
         tunel: pagos.find((p) => p.tipo === 'Túnel')?.estatus,
-        monto_tunel: pagos.find((p) => p.tipo === 'Túnel')?.monto,
+        monto_tunel: `$${montoTunel}`,
+        total_abonado_tunel: `$${totalAbonadoTunel}`,
+        total_restnate_tunel: `$${totalRestanteTunel}`,
+
         botiquin: pagos.find((p) => p.tipo === 'Botiquín')?.estatus,
-        monto_botiquin: pagos.find((p) => p.tipo === 'Botiquín')?.monto,
-        monto_total_pagado: pago.monto_total_pagado,
-        monto_total_pendiente: pago.monto_total_pendiente,
-        monto_total: pago.monto_total,
+        monto_botiquin: `$${montoBotiquin}`,
+        total_abonado_boti: `$${totalAbonadoBoti}`,
+        total_restnate_boti: `$${totalRestanteBoti}`,
+
+        monto_total_pagado: `$${pago.monto_total_pagado}`,
+        monto_total_pendiente: `$${pago.monto_total_pendiente}`,
+        monto_total: `$${pago.monto_total}`,
         fecha_registro: dayjs(pago.fecha_registro).format('DD/MM/YYYY')
       }
     })
@@ -511,18 +570,28 @@ export const useReports = () => {
     exportToExcel(
       data,
       [
+        'Temporada',
+        'Categoria',
         'Jugador',
         'Inscripción',
         'Monto de inscripción',
+        'Total abonado de inscripción',
+        'Total restante de inscripción',
         'Coaching',
         'Monto de coaching',
-        'Túnel',
-        'Monto de túnel',
+        'Total abonado de coaching',
+        'Total restante de coaching',
+        'Aportación',
+        'Monto de aportación',
+        'Total abonado de aportación',
+        'Total restante de aportación',
         'Botiquín',
         'Monto de botiquín',
-        'Monto total pagado',
-        'Monto total pendiente',
-        'Monto total',
+        'Total abonado de botiquín',
+        'Total restante de botiquín',
+        'Total pagado',
+        'Total pendiente restante',
+        'Monto total a pagar',
         'Fecha de registro'
       ],
       'Reporte de pagos',
@@ -538,10 +607,24 @@ export const useReports = () => {
         ? dayjs(pago.fecha_registro).format('DD/MM/YYYY')
         : 'Fecha no asignada'
 
+      const montoCoach = parseFloat(
+        pagos.find((p) => p.tipo === 'Coaching')?.monto
+      )
+      const totalAbonadoCoach = parseFloat(
+        pagos.find((p) => p.tipo === 'Coaching')?.total_abonado
+      )
+      const totalRestanteCoach = montoCoach - totalAbonadoCoach
+
       return {
+        temporada: pago.temporadaId.label,
+        categoria: pago.categoria,
         nombre: pago.nombre,
+
         coacheo: pagos.find((p) => p.tipo === 'Coaching')?.estatus,
-        monto_coach: pagos.find((p) => p.tipo === 'Coaching')?.monto,
+        monto_coach: `$${montoCoach}`,
+        total_abonado_coach: `$${totalAbonadoCoach}`,
+        total_restnate_coach: `$${totalRestanteCoach}`,
+
         fecha_limite: fecha_limite,
         fecha_registro: dayjs(pago.fecha_registro).format('DD/MM/YYYY')
       }
@@ -550,9 +633,13 @@ export const useReports = () => {
     exportToExcel(
       data,
       [
+        'Temporada',
+        'Categoria',
         'Jugador',
         'Coaching',
         'Monto de coaching',
+        'Total abonado de coaching',
+        'Total restante de coaching',
         'Fecha límite',
         'Fecha de registro'
       ],
@@ -748,31 +835,42 @@ export const useReports = () => {
     if (jugadores.length === 0)
       toast.warning('No se encontraron registros con este filtro')
     else {
-      const data = jugadores.map((j) => {
-        const fechaRegistro = getFechaRegistro(j.fecha_registro)
-        const categoria = getCategoria(j.categoria)
+      const data = await Promise.all(
+        jugadores.map(async (j) => {
+          const fechaRegistro = getFechaRegistro(j.fecha_registro)
+          const categoria = getCategoria(j.categoria)
+          const tutor = await getUserByUID(j.uid)
 
-        return {
-          nombre: `${j.nombre} ${j.apellido_p} ${j.apellido_m}`,
-          curp: j.curp.toUpperCase(),
-          fecha_nacimiento: dayjs(j.fecha_nacimiento).format('DD/MM/YYYY'),
-          peso: `${j.peso} kg.`,
-          categoria: categoria,
-          numero_mfl: j.numero_mfl,
-          fecha_registro: fechaRegistro
-        }
-      })
+          return {
+            temporada: j.temporadaId?.label || 'Sin temporada asignada',
+            nombre: `${j.nombre} ${j.apellido_p} ${j.apellido_m}`,
+            curp: j?.curp?.toUpperCase() || 'Sin CURP',
+            fecha_nacimiento: dayjs(j.fecha_nacimiento).format('DD/MM/YYYY'),
+            peso: `${j.peso} kg.`,
+            categoria: categoria,
+            numero_mfl: j.numero_mfl,
+            fecha_registro: fechaRegistro,
+            tutor: tutor.nombre_completo,
+            celular_tutor: tutor.celular,
+            correo_tutor: tutor.correo
+          }
+        })
+      )
 
       exportToExcel(
         data,
         [
+          'Temporada',
           'Nombre',
           'CURP',
           'Fecha de nacimiento',
           'Peso',
           'Categoría',
           'Número MFL',
-          'Fecha de registro'
+          'Fecha de registro',
+          'Tutor',
+          'Celular del tutor',
+          'Correo del tutor'
         ],
         'Reporte de categorías',
         `Reporte_categorias_${dayjs().format('DD-MM-YYYY')}.xlsx`
@@ -873,6 +971,23 @@ export const useReports = () => {
     }
   }
 
+  const loadOptionsCoordinadora = async () => {
+    try {
+      const data = await getCoordinadora()
+      const info = data.map((coor) => ({
+        value: coor.id,
+        label: coor.nombre_completo
+      }))
+
+      info.unshift({ label: 'TODAS', value: 'todas' })
+
+      return info
+    } catch (error) {
+      console.error('Error loading data:', error)
+      return []
+    }
+  }
+
   const generarReporteHistorialPagos = async (data) => {
     const historialPagos = await obtenerHitorialPagos(data)
 
@@ -948,6 +1063,7 @@ export const useReports = () => {
     loadOptionsBancos,
     loadOptionsProveedor,
     loadOptionsTemporadas,
+    loadOptionsCoordinadora,
     handleInputChange,
     categoriaOptions,
     formReport

@@ -16,3 +16,4 @@ use App\Http\Controllers\CorreoController;
 */
 
 Route::post('/enviar-correo', [CorreoController::class, 'enviar']);
+Route::post('/agregar-usuario', [CorreoController::class, 'agregarUsuario']);

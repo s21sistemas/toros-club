@@ -2,7 +2,6 @@ import {
   BarChart3,
   Users,
   BoomBox,
-  CircleUserRound,
   IdCard,
   Landmark,
   BaggageClaim,
@@ -12,7 +11,8 @@ import {
   CreditCard,
   BookMarked,
   Mail,
-  NotepadTextDashed
+  NotepadTextDashed,
+  Hash
 } from 'lucide-react'
 
 export const routes = [
@@ -20,6 +20,7 @@ export const routes = [
 
   { path: '/jugadores', label: 'Jugadores', Icon: Users },
   { path: '/porristas', label: 'Porristas', Icon: BoomBox },
+  { path: '/tallas', label: 'Tallas', Icon: Hash },
   { path: '/proveedores', label: 'Proveedores', Icon: BaggageClaim },
   { path: '/bancos', label: 'Bancos', Icon: Landmark },
   { path: '/utileria', label: 'Utilería', Icon: Shirt },
@@ -39,7 +40,8 @@ export const routes = [
     children: [
       { path: '/pagos-jugadores', label: 'Jugadores' },
       { path: '/pagos-porristas', label: 'Porristas' },
-      { path: '/calendario-pagos', label: 'Calendario' },
+      { path: '/calendario-jugadores', label: 'Calendario jugadores' },
+      { path: '/calendario-porristas', label: 'Calendario porristas' },
       { path: '/caja', label: 'Caja' },
       { path: '/historial', label: 'Historial' }
     ]
@@ -76,7 +78,8 @@ export const routes = [
     children: [
       { path: '/usuarios', label: 'Usuarios' },
       { path: '/modulos', label: 'Módulos' },
-      { path: '/roles', label: 'Accesos' }
+      { path: '/roles', label: 'Accesos' },
+      { path: '/peticiones-eliminacion', label: 'Eliminación de cuentas' }
     ]
   },
   { path: '/reportes', label: 'Reportes', Icon: BookMarked }

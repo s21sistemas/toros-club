@@ -2,8 +2,12 @@ import { useReports } from '../../hooks/useReports'
 import { InputField } from '../InputField'
 
 export const FormReporteHistorial = () => {
-  const { generarReporteHistorialPagos, handleInputChange, formReport } =
-    useReports()
+  const {
+    generarReporteHistorialPagos,
+    handleInputChange,
+    formReport,
+    loadOptionsCoordinadora
+  } = useReports()
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -20,7 +24,7 @@ export const FormReporteHistorial = () => {
         label='Fecha inicio'
         id='fecha_inicio'
         name='fecha_inicio'
-        type='date'
+        type='datetime-local'
         required={true}
         value={formReport.fecha_inicio}
         onChange={handleInputChange}
@@ -30,7 +34,7 @@ export const FormReporteHistorial = () => {
         label='Fecha fin'
         id='fecha_fin'
         name='fecha_fin'
-        type='date'
+        type='datetime-local'
         required={true}
         value={formReport.fecha_fin}
         onChange={handleInputChange}
@@ -56,7 +60,18 @@ export const FormReporteHistorial = () => {
           { value: 'efectivo', label: 'Efectivo' },
           { value: 'cheques', label: ' Cheques' }
         ]}
-        classInput='md:col-span-6'
+        classInput='md:col-span-3'
+      />
+
+      <InputField
+        type='async'
+        label='Selecciona a la coordinadora'
+        name='coordinadora'
+        required={true}
+        value={formReport.coordinadora}
+        onChange={handleInputChange}
+        loadOptions={loadOptionsCoordinadora}
+        classInput='md:col-span-3'
       />
 
       <div className='md:col-span-6 sm:col-span-6'>

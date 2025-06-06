@@ -58,6 +58,28 @@ export const listenCaja = async (callback) => {
   })
 }
 
+// Obtener coordinadora seleccionada
+export const getCajaCoordinadora = async (coordinadora) => {
+  try {
+    const snapshot = await getDocs(
+      query(cajaCollection, where('usuarioId', '==', coordinadora))
+    )
+
+    const data = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      fecha: dayjs(doc.data().fecha_pago).format('DD/MM/YYYY'),
+      usuario: doc.data().usuarioId?.label || '',
+      nombre_seccion: `${doc.data().nombre} (${doc.data().tabla})`
+    }))
+
+    return data
+  } catch (error) {
+    console.error('Error al obtener porristas:', error)
+    return []
+  }
+}
+
 // Eliminar registro
 export const removeCaja = async (data) => {
   try {

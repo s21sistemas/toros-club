@@ -72,15 +72,23 @@ export const usePlayer = (handleInputChange) => {
     })
 
     try {
+      let estatus = 'incompleto'
+
+      if (
+        formData.curp &&
+        formData.documentos?.curp &&
+        formData.documentos?.ine_tutor &&
+        formData.documentos?.acta_nacimiento &&
+        formData.documentos?.comprobante_domicilio
+      ) {
+        estatus = 'completo'
+      }
+
       const newFormData = {
         ...formData,
-        curp: formData.curp.toUpperCase(),
+        curp: formData?.curp?.toUpperCase() || '',
         uid: formData.uid.value,
-        estatus: 'completo',
-        activo:
-          formData.tipo_inscripcion === 'reinscripcion'
-            ? 'activo'
-            : 'no activo',
+        estatus,
         numero_mfl: formData.numero_mfl ? formData.numero_mfl : '000000',
         documentos: { ...formData.documentos, firma: signatureFirma }
       }
@@ -105,6 +113,7 @@ export const usePlayer = (handleInputChange) => {
       }
 
       if (modalType === 'add') {
+        newFormData.activo = 'activo'
         await addPlayer(newFormData)
       } else if (modalType === 'edit') {
         await editPlayer(newFormData)
@@ -128,7 +137,9 @@ export const usePlayer = (handleInputChange) => {
       const data = await getDataUsers()
       return data.map((user) => ({
         value: user.uid,
-        label: user.nombre_completo
+        label: user.nombre_completo,
+        celular: user.celular,
+        correo: user.correo
       }))
     } catch (error) {
       console.error('Error loading users:', error)

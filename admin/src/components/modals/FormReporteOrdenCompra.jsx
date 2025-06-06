@@ -25,7 +25,7 @@ export const FormReporteOrdenCompra = () => {
         label='Fecha inicio'
         id='fecha_inicio'
         name='fecha_inicio'
-        type='date'
+        type='datetime-local'
         required={true}
         value={formReport.fecha_inicio}
         onChange={handleInputChange}
@@ -35,7 +35,7 @@ export const FormReporteOrdenCompra = () => {
         label='Fecha fin'
         id='fecha_fin'
         name='fecha_fin'
-        type='date'
+        type='datetime-local'
         required={true}
         value={formReport.fecha_fin}
         onChange={handleInputChange}

@@ -5,6 +5,7 @@ import { usePlayerStore } from '../store/usePlayerStore'
 import { useTemporadasStore } from '../store/useTemporadasStore'
 import { toast } from 'sonner'
 import { useCalendarStore } from '../store/useCalendarStore'
+import Swal from 'sweetalert2'
 
 export const usePaymentPlayer = (handleInputChange) => {
   const getDataTemporadas = useTemporadasStore(
@@ -30,6 +31,7 @@ export const usePaymentPlayer = (handleInputChange) => {
   const editPayment = usePaymentPlayerStore((state) => state.editPayment)
   const deletePayment = usePaymentPlayerStore((state) => state.deletePayment)
   const getDataFilter = usePaymentPlayerStore((state) => state.getDataFilter)
+  const cleanAbono = usePaymentPlayerStore((state) => state.cleanAbono)
 
   // Store de jugadores
   const getDataPlayers = usePlayerStore((state) => state.getDataPlayers)
@@ -94,19 +96,6 @@ export const usePaymentPlayer = (handleInputChange) => {
       setNestedFormData('pagos.2.metodo_pago', null)
     if (!formData.pagos?.[3]?.metodo_pago)
       setNestedFormData('pagos.3.metodo_pago', null)
-
-    if (!formData.pagos?.[0]?.total_abonado) {
-      setNestedFormData('pagos.0.total_abonado', '0')
-    }
-    if (!formData.pagos?.[1]?.total_abonado) {
-      setNestedFormData('pagos.1.total_abonado', '0')
-    }
-    if (!formData.pagos?.[2]?.total_abonado) {
-      setNestedFormData('pagos.2.total_abonado', '0')
-    }
-    if (!formData.pagos?.[3]?.total_abonado) {
-      setNestedFormData('pagos.3.total_abonado', '0')
-    }
   }, [formData.pagos, setNestedFormData])
 
   const handleSubmit = async (e) => {
@@ -181,6 +170,24 @@ export const usePaymentPlayer = (handleInputChange) => {
     getDataPaymentsPlayer()
   }
 
+  const handleCleanPay = (id) => {
+    Swal.fire({
+      title: '¿Estás seguro de limpiar los abonos?',
+      text: 'Esta acción no se podrá deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      confirmButtonText: 'Eliminar',
+      cancelButtonColor: '#3085d6',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await cleanAbono(id)
+        closeModal()
+      }
+    })
+  }
+
   return {
     payments,
     getDataPaymentsPlayer,
@@ -191,6 +198,7 @@ export const usePaymentPlayer = (handleInputChange) => {
     loadOptionsTemporadas,
     handleFiltrar,
     filterByTempCat,
-    handleClearFilter
+    handleClearFilter,
+    handleCleanPay
   }
 }

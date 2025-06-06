@@ -7,7 +7,7 @@ import { formOptions } from '../../utils/formPlayersOptions'
 import { usePlayer } from '../../hooks/usePlayer'
 import { SignatureInput } from '../SignatureInput'
 
-import reglamento from '../../assets/docs/reglamento_jugadores.pdf'
+import reglamento from '../../assets/docs/reglamento.pdf'
 
 export const FormPlayers = () => {
   const {
@@ -113,10 +113,10 @@ export const FormPlayers = () => {
               <>
                 <InputField
                   type='select'
-                  label='Activo (solo modificar si es reinscripción)'
+                  label='Activo'
                   name='activo'
                   required={false}
-                  opcSelect={formOptions.reinscripcionOptions}
+                  opcSelect={formOptions.activoOptions}
                   value={formData.activo || ''}
                   onChange={handleInputChange}
                   disabled={view}
@@ -154,7 +154,7 @@ export const FormPlayers = () => {
         </>
       ) : isMobile ? (
         <div className='text-center'>
-          <p className='mb-4 text-gray-700 font-medium'>
+          <p className='mb-4 text-gray-700 font-medium text-sm sm:text-base'>
             El visor no está disponible en móvil. Puedes abrir o descargar el
             reglamento aquí:
           </p>
@@ -162,11 +162,32 @@ export const FormPlayers = () => {
             href={reglamento}
             target='_blank'
             rel='noopener noreferrer'
-            className='inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-all'
+            className='inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-all mb-5'
             download
           >
             Descargar reglamento
           </a>
+
+          <p className='text-sm sm:px-5 sm:text-base text-justify mb-5 text-gray-700'>
+            Declaro bajo protesta de decir verdad que la información y
+            documentación proporcionada en esta aplicación y presentada al club
+            toros es verídica, por lo que en caso de existir falsedad en ella
+            deslindo de toda responsabilidad al Club Toros y tengo pleno
+            conocimiento que se aplicarán las sanciones administrativas y penas
+            establecidas en los ordenamientos del reglamento establecido por la
+            liga.
+          </p>
+
+          <div className='mb-5'>
+            <button
+              onClick={handleReglamento}
+              type='button'
+              className='text-xs w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:col-start-2 sm:text-sm md:text-base cursor-pointer transition-all'
+            >
+              Al dar click aquí, aceptas el reglamento y los terminos y
+              condiciones.
+            </button>
+          </div>
         </div>
       ) : (
         <>
@@ -174,11 +195,22 @@ export const FormPlayers = () => {
             <button
               onClick={handleReglamento}
               type='button'
-              className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:col-start-2 sm:text-sm cursor-pointer transition-all'
+              className='text-xs w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:col-start-2 sm:text-sm md:text-base cursor-pointer transition-all'
             >
-              ¿El padre, madre o tutor acepta el reglamento?
+              Al dar click aquí, aceptas el reglamento y los terminos y
+              condiciones.
             </button>
           </div>
+
+          <p className='text-sm sm:px-5 sm:text-base text-justify mb-5 text-gray-700'>
+            Declaro bajo protesta de decir verdad que la información y
+            documentación proporcionada en esta aplicación y presentada al club
+            toros es verídica, por lo que en caso de existir falsedad en ella
+            deslindo de toda responsabilidad al Club Toros y tengo pleno
+            conocimiento que se aplicarán las sanciones administrativas y penas
+            establecidas en los ordenamientos del reglamento establecido por la
+            liga.
+          </p>
 
           <div className='w-full h-[100dvh]'>
             <iframe

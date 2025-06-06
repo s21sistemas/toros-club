@@ -1,5 +1,10 @@
 import { create } from 'zustand'
-import { createCaja, listenCaja, removeCaja } from '../api/caja'
+import {
+  createCaja,
+  getCajaCoordinadora,
+  listenCaja,
+  removeCaja
+} from '../api/caja'
 import { toast } from 'sonner'
 
 let unsubscribe = null
@@ -27,6 +32,13 @@ export const useCajaStore = create((set, get) => ({
         set({ loading: false })
       }
     })
+  },
+
+  getDataFilter: async (coordinadora) => {
+    const data = await getCajaCoordinadora(coordinadora)
+
+    unsubscribe = null
+    set({ caja: data })
   },
 
   addCaja: async (data) => {

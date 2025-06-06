@@ -8,8 +8,12 @@ import { useAuth } from './hooks/useAuth'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
 const UsersPage = lazy(() => import('./pages/UsersPage'))
+const PeticionesEliminacionPage = lazy(() =>
+  import('./pages/PeticionesEliminacionPage')
+)
 const AdminPage = lazy(() => import('./pages/AdminPage'))
 const JugadoresPage = lazy(() => import('./pages/JugadoresPage'))
+const TallasPage = lazy(() => import('./pages/TallasPage'))
 const TemporadasPage = lazy(() => import('./pages/TemporadasPage'))
 const CostosJugadorPage = lazy(() => import('./pages/CostosJugadorPage'))
 const CostosPorristaPage = lazy(() => import('./pages/CostosPorristaPage'))
@@ -20,7 +24,12 @@ const PagosPorristasPage = lazy(() => import('./pages/PagosPorristasPage'))
 const RolesPage = lazy(() => import('./pages/RolesPage'))
 const ModulosPage = lazy(() => import('./pages/ModulosPage'))
 const ProveedoresPage = lazy(() => import('./pages/ProveedoresPage'))
-const CalendarioPagosPage = lazy(() => import('./pages/CalendarioPagosPage'))
+const CalendarioJugadoresPage = lazy(() =>
+  import('./pages/CalendarioJugadoresPage')
+)
+const CalendarioPorristasPage = lazy(() =>
+  import('./pages/CalendarioPorristasPage')
+)
 const EquipamientoPage = lazy(() => import('./pages/EquipamientoPage'))
 const ArticulosPage = lazy(() => import('./pages/ArticulosPage'))
 const OrdenCompraPage = lazy(() => import('./pages/OrdenCompraPage'))
@@ -86,6 +95,14 @@ export default function App() {
                           element={
                             <ProtectedRoute permiso='porristas'>
                               <PorristasPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/tallas'
+                          element={
+                            <ProtectedRoute permiso='tallas'>
+                              <TallasPage />
                             </ProtectedRoute>
                           }
                         />
@@ -165,10 +182,18 @@ export default function App() {
                           }
                         />
                         <Route
-                          path='/calendario-pagos'
+                          path='/calendario-jugadores'
                           element={
-                            <ProtectedRoute permiso='calendario-pagos'>
-                              <CalendarioPagosPage />
+                            <ProtectedRoute permiso='calendario-jugadores'>
+                              <CalendarioJugadoresPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/calendario-porristas'
+                          element={
+                            <ProtectedRoute permiso='calendario-porristas'>
+                              <CalendarioPorristasPage />
                             </ProtectedRoute>
                           }
                         />
@@ -277,6 +302,14 @@ export default function App() {
                           element={
                             <ProtectedRoute permiso='modulos'>
                               <ModulosPage />
+                            </ProtectedRoute>
+                          }
+                        />
+                        <Route
+                          path='/peticiones-eliminacion'
+                          element={
+                            <ProtectedRoute permiso='peticiones-eliminacion'>
+                              <PeticionesEliminacionPage />
                             </ProtectedRoute>
                           }
                         />

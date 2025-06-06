@@ -20,25 +20,24 @@ export const createAlerta = async (data) => {
 
   const promise = async () => {
     try {
-      data.estatus = 'pendiente'
-      data.nombre_tutor = data.correoId.tutor
-      data.tutor = `${data.correoId.tutor} (${data.correoId.correo})`
-      data.tutorId = data.correoId.value
-      data.correo = data.correoId.correo
-      data.fecha = dayjs().format('DD/MM/YYYY')
-
       const correoData = {
-        correo: data.correo,
+        correo: data.correoId.correo,
         asunto: data.asunto,
-        nombre_tutor: data.nombre_tutor,
+        nombre_tutor: data.correoId.tutor,
         mensaje: data.mensaje
       }
 
       const res = await axios.post(`${HOST}/enviar-correo`, correoData)
 
+      correoData.estatus = 'pendiente'
+      correoData.tutor = `${data.correoId.tutor} (${data.correoId.correo})`
+      correoData.fecha = dayjs().format('DD/MM/YYYY')
+      correoData.tutorId = data.correoId.value
+      correoData.uid = data.correoId.uid
+
       if (res.status === 200) {
         resetFormData()
-        const docRef = await addDoc(alertasCollection, data)
+        const docRef = await addDoc(alertasCollection, correoData)
         return docRef.id
       }
     } catch (error) {

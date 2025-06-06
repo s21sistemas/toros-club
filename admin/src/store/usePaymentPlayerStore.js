@@ -3,6 +3,7 @@ import {
   createPayment,
   getPagosJugadoresTempCat,
   getPayments,
+  removeAbonos,
   removePayment,
   updatePayment
 } from '../api/paymentsPlayer'
@@ -95,6 +96,22 @@ export const usePaymentPlayerStore = create((set, get) => ({
     toast.promise(promise(), {
       loading: 'Eliminando...',
       success: 'Eliminado correctamente',
+      error: 'Falló al eliminar.'
+    })
+  },
+
+  cleanAbono: async (id) => {
+    const promise = async () => {
+      try {
+        await removeAbonos(id)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    toast.promise(promise(), {
+      loading: 'Limpiando...',
+      success: 'Limpiado de abonos correctamente',
       error: 'Falló al eliminar.'
     })
   }

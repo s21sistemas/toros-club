@@ -30,7 +30,7 @@ export const FiltroPagosJugadores = ({
         />
       </div>
 
-      {formData.temporadaIdFilter?.value !== '' && (
+      {formData.temporadaIdFilter?.value && (
         <InputField
           type='select'
           label='Selecciona la categoría'

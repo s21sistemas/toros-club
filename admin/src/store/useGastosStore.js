@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { createGasto, getGastos, removeGasto, updateGasto } from '../api/gastos'
 import { toast } from 'sonner'
-import dayjs from 'dayjs'
 
 let unsubscribe = null
 export const useGastosStore = create((set, get) => ({

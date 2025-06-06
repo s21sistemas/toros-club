@@ -39,7 +39,7 @@ export const formOptions = {
       label: 'Lugar de nacimiento *',
       name: 'lugar_nacimiento'
     },
-    { required: true, type: 'text', label: 'CURP *', name: 'curp' },
+    { required: false, type: 'text', label: 'CURP', name: 'curp' },
     {
       required: true,
       type: 'select',
@@ -66,42 +66,54 @@ export const formOptions = {
       name: 'padecimientos'
     },
     { required: true, type: 'number', label: 'Peso (kg) *', name: 'peso' },
-    { required: true, type: 'async', label: 'Tutor *', name: 'uid' },
     {
       required: true,
       type: 'file',
       label: 'Foto de la porrista *',
       name: 'foto',
       accept: 'image/*'
+    },
+    { required: true, type: 'async', label: 'Tutor *', name: 'uid' },
+    {
+      required: true,
+      type: 'text',
+      label: 'Celular del tutor *',
+      name: 'celular_tutor'
+    },
+    {
+      required: true,
+      type: 'text',
+      label: 'Correo del tutor *',
+      name: 'correo_tutor'
     }
   ],
 
   documentFields: [
     {
-      required: true,
+      required: false,
       type: 'file',
-      label: 'CURP de la porrista (PDF) *',
+      label: 'CURP de la porrista (PDF)',
       name: 'curp',
       accept: 'application/pdf'
     },
     {
-      required: true,
+      required: false,
       type: 'file',
-      label: 'INE del tutor (PDF) *',
+      label: 'INE del tutor (PDF)',
       name: 'ine_tutor',
       accept: 'application/pdf'
     },
     {
-      required: true,
+      required: false,
       type: 'file',
-      label: 'Acta de nacimiento (PDF) *',
+      label: 'Acta de nacimiento (PDF)',
       name: 'acta_nacimiento',
       accept: 'application/pdf'
     },
     {
-      required: true,
+      required: false,
       type: 'file',
-      label: 'Comprobante de domicilio (PDF) *',
+      label: 'Comprobante de domicilio (PDF)',
       name: 'comprobante_domicilio',
       accept: 'application/pdf'
     }

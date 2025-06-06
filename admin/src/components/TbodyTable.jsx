@@ -1,4 +1,3 @@
-import { useLocation } from 'react-router'
 import { ActionButtons } from './ActionButtons'
 import Loading from './Loading'
 import { useAuth } from '../hooks/useAuth'
@@ -11,7 +10,6 @@ export const TbodyTable = ({
   formatValue
 }) => {
   const { permisos } = useAuth()
-  const { pathname } = useLocation()
 
   return (
     <tbody className='bg-white divide-y divide-gray-200'>
@@ -87,12 +85,11 @@ export const TbodyTable = ({
               ))}
               {['consultar', 'actualizar', 'eliminar'].some((permiso) =>
                 permisos?.includes(permiso)
-              ) &&
-                pathname !== '/historial' && (
-                  <td className='text-center px-6 py-4'>
-                    <ActionButtons data={item} />
-                  </td>
-                )}
+              ) && (
+                <td className='text-center px-6 py-4'>
+                  <ActionButtons data={item} />
+                </td>
+              )}
             </tr>
           ))}
           {currentData.length === 0 && (

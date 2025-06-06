@@ -2,8 +2,14 @@ import { toast } from 'sonner'
 import { useModalStore } from '../store/useModalStore'
 import { useUserStore } from '../store/useUserStore'
 import { usuarioSchema } from '../zod/schemas'
+import { useTemporadasStore } from '../store/useTemporadasStore'
+import { getCheerleadersCoord } from '../api/cheerleader'
 
 export const useUser = () => {
+  const getDataTemporadas = useTemporadasStore(
+    (state) => state.getDataTemporadas
+  )
+
   // Store de modal
   const modalType = useModalStore((state) => state.modalType)
   const formData = useModalStore((state) => state.formData)
@@ -65,8 +71,36 @@ export const useUser = () => {
     }
   }
 
+  const loadOptionsTemporadas = async () => {
+    try {
+      const data = await getDataTemporadas()
+      return data.map((temp) => ({
+        value: temp.id,
+        label: temp.temporada
+      }))
+    } catch (error) {
+      console.error('Error loading temporadas:', error)
+      return []
+    }
+  }
+
+  const loadOptionsPorristas = async () => {
+    try {
+      const data = await getCheerleadersCoord()
+      return data.map((cheer) => ({
+        value: cheer.id,
+        label: `${cheer.nombre} ${cheer.apellido_p} ${cheer.apellido_m}`
+      }))
+    } catch (error) {
+      console.error('Error loading temporadas:', error)
+      return []
+    }
+  }
+
   return {
     loadOptions,
+    loadOptionsTemporadas,
+    loadOptionsPorristas,
     roles,
     getDataRoles,
     users,

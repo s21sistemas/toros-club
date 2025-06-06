@@ -3,7 +3,8 @@ import {
   addDoc,
   deleteDoc,
   doc,
-  onSnapshot
+  onSnapshot,
+  updateDoc
 } from 'firebase/firestore'
 import { db } from './db/firebaseConfig'
 
@@ -25,6 +26,16 @@ export const getHistorial = async (callback) => {
     const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
     callback(data)
   })
+}
+
+// Actualizar registro
+export const updateHistorial = async (id, data) => {
+  try {
+    const dataRef = doc(db, 'historial', id)
+    await updateDoc(dataRef, data)
+  } catch (error) {
+    console.error('Error al actualizar historial:', error)
+  }
 }
 
 // Eliminar un historial

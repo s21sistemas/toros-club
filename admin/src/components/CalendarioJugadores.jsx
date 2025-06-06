@@ -5,23 +5,25 @@ import { AlertaCard } from './AlertaCard'
 import dayjs from 'dayjs'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'dayjs/locale/es'
-import { useCalendar } from '../hooks/useCalendar'
+import { useCalendarPlayers } from '../hooks/useCalendarPlayers'
 import { useState } from 'react'
 import { ModalCalendar } from './modals/ModalCalendar'
 import { GlosarioColoresCalendario } from './GlosarioColoresCalendario'
 import { InputField } from './InputField'
 import { useModal } from '../hooks/useModal'
 import { toast } from 'sonner'
+import { useAuth } from '../hooks/useAuth'
 
 dayjs.locale('es')
 
 const localizer = dayjsLocalizer(dayjs)
 
 export const CalendarioJugadores = () => {
+  const { user } = useAuth()
   const { view, formData, handleInputChange, categoriaOptions } = useModal()
 
   const { eventsPlayers, loadOptionsTemporadas, filterByTempCat, clearFilter } =
-    useCalendar()
+    useCalendarPlayers()
   const [toggle, setToggle] = useState(false)
   const [info, setInfo] = useState({})
 
@@ -39,7 +41,7 @@ export const CalendarioJugadores = () => {
       const nombre = props.event.title
       const coach = props.event.coach
       const ins = props.event.ins
-      const url = `/pagos-jugadores?nombre=${nombre}`
+      const url = `/pagos-jugadores?nombre=${encodeURIComponent(nombre)}`
       setInfo({
         nombre,
         limite_ins,
@@ -130,54 +132,56 @@ export const CalendarioJugadores = () => {
 
       <GlosarioColoresCalendario />
 
-      <div className='mb-6 bg-white shadow-md rounded-md p-4'>
-        <div className='mb-4'>
-          <AlertaCard text='Puedes filtrar a los jugadores por temporada y categorías' />
-        </div>
+      {!user.coordinadora_jugadores && (
+        <div className='mb-6 bg-white shadow-md rounded-md p-4'>
+          <div className='mb-4'>
+            <AlertaCard text='Puedes filtrar a los jugadores por temporada y categorías' />
+          </div>
 
-        <div className='mb-4'>
-          <InputField
-            type='async'
-            label='Selecciona la temporada'
-            name='temporadaId'
-            required={true}
-            value={formData.temporadaId}
-            onChange={handleInputChange}
-            disabled={view}
-            loadOptions={loadOptionsTemporadas}
-          />
-        </div>
+          <div className='mb-4'>
+            <InputField
+              type='async'
+              label='Selecciona la temporada'
+              name='temporadaId'
+              required={true}
+              value={formData.temporadaId}
+              onChange={handleInputChange}
+              disabled={view}
+              loadOptions={loadOptionsTemporadas}
+            />
+          </div>
 
-        {formData.temporadaId?.value !== '' && (
-          <InputField
-            type='select'
-            label='Selecciona la categoría'
-            name='categoria'
-            required={true}
-            value={formData.categoria}
-            opcSelect={categoriaOptions}
-            onChange={handleInputChange}
-            disabled={view}
-          />
-        )}
+          {formData.temporadaId?.value !== '' && (
+            <InputField
+              type='select'
+              label='Selecciona la categoría'
+              name='categoria'
+              required={true}
+              value={formData.categoria}
+              opcSelect={categoriaOptions}
+              onChange={handleInputChange}
+              disabled={view}
+            />
+          )}
 
-        <div className='flex flex-col md:flex-row gap-2 items-center justify-center'>
-          <button
-            onClick={handleFiltrar}
-            className='rounded-sm text-white font-medium py-2 px-3 bg-[#328E6E] hover:bg-[#24644e] transition-all cursor-pointer mt-4 flex items-center gap-2'
-          >
-            <Funnel className='w-4 h-4' />
-            Filtrar jugadores por categoría
-          </button>
-          <button
-            onClick={handleClearFilter}
-            className='rounded-sm text-white font-medium py-2 px-3 bg-[#E78B48] hover:bg-[#c4763e] transition-all cursor-pointer mt-4 flex items-center gap-2'
-          >
-            <BookmarkX className='w-5 h-5' />
-            Limpiar filtros
-          </button>
+          <div className='flex flex-col md:flex-row gap-2 items-center justify-center'>
+            <button
+              onClick={handleFiltrar}
+              className='rounded-sm text-white font-medium py-2 px-3 bg-[#328E6E] hover:bg-[#24644e] transition-all cursor-pointer mt-4 flex items-center gap-2'
+            >
+              <Funnel className='w-4 h-4' />
+              Filtrar jugadores por categoría
+            </button>
+            <button
+              onClick={handleClearFilter}
+              className='rounded-sm text-white font-medium py-2 px-3 bg-[#E78B48] hover:bg-[#c4763e] transition-all cursor-pointer mt-4 flex items-center gap-2'
+            >
+              <BookmarkX className='w-5 h-5' />
+              Limpiar filtros
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className='w-full h-[600px]'>
         <Calendar

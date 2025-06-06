@@ -32,7 +32,8 @@ export const useAlerta = () => {
         value: user.id,
         label: `${user.nombre_completo} (${user.correo})`,
         tutor: user.nombre_completo,
-        correo: user.correo
+        correo: user.correo,
+        uid: user.uid
       }))
     } catch (error) {
       console.error('Error loading data:', error)

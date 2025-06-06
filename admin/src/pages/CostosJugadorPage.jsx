@@ -8,9 +8,10 @@ import { FormCostosJugadores } from '../components/modals/FormCostosJugadores'
 
 const columns = [
   { key: 'temporada', name: 'Temporada' },
+  { key: 'categoria', name: 'Categoria' },
   { key: 'inscripcion', name: 'Costo inscripción' },
   { key: 'coaching', name: 'Costo coaching' },
-  { key: 'tunel', name: 'Costo túnel' },
+  { key: 'tunel', name: 'Aportación' },
   { key: 'botiquin', name: 'Costo botiquín' }
 ]
 
