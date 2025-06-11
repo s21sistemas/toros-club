@@ -54,6 +54,80 @@ export const useModal = () => {
 
   const { pathname } = useLocation()
 
+  const recalcularPagoCoaching = () => {
+    const pago = formData.pagos[1] || {}
+
+    const submonto = parseFloat(pago.submonto) || 0
+    const descuento = parseFloat(pago.descuento) || 0
+
+    const fechaInicialP = pago?.fecha_inicial || formData.fecha_inicial
+
+    const fechaInicial = dayjs(fechaInicialP, 'YYYY-MM-DD', true)
+    const fechaFinal = dayjs(pago.fecha_final, 'YYYY-MM-DD', true)
+
+    if (fechaInicial.isAfter(fechaFinal)) {
+      toast.warning('La fecha final no puede ser antes a la fecha inicial')
+      setNestedFormData('pagos.1.fecha_final', null)
+    }
+
+    // Si fechas inválidas, asumimos 1 semana
+    const semanas =
+      fechaInicial.isValid() && fechaFinal.isValid()
+        ? fechaFinal.diff(fechaInicial, 'week')
+        : 1
+
+    const montoBruto = semanas * submonto
+    const montoConDescuento = montoBruto - descuento
+    const montoFinal = montoConDescuento > 0 ? montoConDescuento : 0
+
+    setNestedFormData('pagos.1.monto', montoFinal)
+
+    // Total abonado y restante
+    const totalAbonado = parseFloat(pago.total_abonado) || 0
+    const totalRestante = montoFinal - totalAbonado
+
+    setNestedFormData('pagos.1.total_restante', totalRestante)
+
+    // SOLO COACHING - AJENO A LOS TOTALES GENERALES
+    setNestedFormData('monto_pagado_coach', totalAbonado)
+    setNestedFormData('monto_pendiente_coach', totalRestante)
+  }
+
+  const recalcularTotalesGlobales = () => {
+    const pagosTotalPendiente = parseFloat(formData.pagos_total_pendiente || 0)
+    const pagosTotalPagado = parseFloat(formData.pagos_total_pagado || 0)
+    const montoPendienteCoach = parseFloat(formData.monto_pendiente_coach || 0)
+    const historialPagadoCoach = parseFloat(
+      formData.historial_total_pagado || 0
+    )
+
+    setFormData(
+      'monto_total_pendiente',
+      pagosTotalPendiente + montoPendienteCoach
+    )
+    setFormData('monto_total_pagado', pagosTotalPagado + historialPagadoCoach)
+  }
+
+  const recalcularMontoTotal = () => {
+    const pagos = formData.pagos || []
+
+    const montoInscripcion = parseFloat(pagos[0]?.monto) || 0
+    const montoCoaching = pagos[1]?.cancelar_coach
+      ? 0
+      : parseFloat(pagos[1]?.monto) || 0
+    const montoTunel = pagos[2]?.cancelar_tunel
+      ? 0
+      : parseFloat(pagos[2]?.monto) || 0
+    const montoBotiquin = pagos[3]?.cancelar_botiquin
+      ? 0
+      : parseFloat(pagos[3]?.monto) || 0
+
+    setFormData(
+      'monto_total',
+      montoInscripcion + montoCoaching + montoTunel + montoBotiquin
+    )
+  }
+
   useEffect(() => {
     const fetchCategorias = async () => {
       const temporadaId = formData.temporadaId
@@ -86,25 +160,53 @@ export const useModal = () => {
           ? formData.pagos[0]?.submonto || 0
           : data?.inscripcion || 0
 
-        const montoCoach = parseFloat(data?.coaching || 0)
+        const subMontoCoach = formData.cambio_coach
+          ? formData.pagos[1]?.submonto || 0
+          : data?.coaching || 0
+
         const montoTunel = parseFloat(data?.tunel || 0)
         const montoBoti = parseFloat(data?.botiquin || 0)
 
         setFormData('pagos.0.submonto', parseFloat(subMontoIns))
-        setFormData('pagos.1.monto', montoCoach)
+        setFormData('pagos.1.submonto', parseFloat(subMontoCoach))
         setFormData('pagos.2.monto', montoTunel)
         setFormData('pagos.3.monto', montoBoti)
 
-        // Descuentos
+        // Descuentos inscripción
         const submonto = parseFloat(formData.pagos[0]?.submonto || 0)
         const descuento = parseFloat(formData.pagos[0]?.descuento || 0)
         const beca = parseFloat(formData.pagos[0]?.beca || 0)
 
-        // Calcular monto con descuento y beca
+        // Calcular monto con descuento y beca de inscripción
         const descuentoAplicado = submonto * (descuento / 100)
         const becaAplicada = submonto * (beca / 100)
         const montoActualizado = submonto - descuentoAplicado - becaAplicada
         setFormData('pagos.0.monto', montoActualizado || 0)
+
+        // Descuentos coaching
+        const fechaInicialCoach =
+          formData.pagos[1]?.fecha_inicial || formData.fecha_inicial
+        const fechaFinalCoach = formData.pagos[1]?.fecha_final
+        const descuentoCoach = parseFloat(formData.pagos[1]?.descuento || 0)
+
+        let montoActualizadoCoach = 0
+
+        // Calcular monto con descuento de coaching
+        if (fechaFinalCoach) {
+          const ini = dayjs(fechaInicialCoach, 'YYYY-MM-DD', true)
+          const fin = dayjs(fechaFinalCoach, 'YYYY-MM-DD', true)
+
+          if (ini.isValid() && fin.isValid() && !ini.isAfter(fin)) {
+            const semanas = fin.diff(ini, 'week')
+            const montoBruto = semanas * subMontoCoach
+            montoActualizadoCoach = montoBruto - descuentoCoach
+          } else {
+            montoActualizadoCoach = subMontoCoach - descuentoCoach
+          }
+        } else {
+          montoActualizadoCoach = subMontoCoach - descuentoCoach
+        }
+        setFormData('pagos.1.monto', montoActualizadoCoach || 0)
 
         // Calculos de los restantes totales
         if (formData.pagos?.[0]?.estatus === 'pagado') {
@@ -123,7 +225,7 @@ export const useModal = () => {
           const totalAbonoCoach = parseFloat(
             formData.pagos?.[1]?.total_abonado || 0
           )
-          const totalRestanteCoach = montoCoach - totalAbonoCoach
+          const totalRestanteCoach = montoActualizadoCoach - totalAbonoCoach
           setFormData('pagos.1.total_restante', totalRestanteCoach)
         }
 
@@ -147,41 +249,50 @@ export const useModal = () => {
           setFormData('pagos.3.total_restante', totalRestanteBoti)
         }
 
-        // Total pendiente
-        const fechaLimiteCoach = formData.pagos[1].fecha_limite
-          ? formData.pagos[1].fecha_limite
-          : dayjs().subtract(1, 'day').format('YYYY-MM-DD')
-        const validacionFecha = dayjs(fechaLimiteCoach).isBefore(dayjs(), 'day')
-        const restanteCoach = formData.pagos[1].total_restante
-        const coachRestante = parseFloat(validacionFecha ? restanteCoach : 0)
+        // === CALCULAR RESTANTES Y TOTALES ===
 
-        const insRestante = parseFloat(formData.pagos[0].total_restante)
-        const tunelRestante = parseFloat(formData.pagos[2].total_restante)
-        const botiquinRestante = parseFloat(formData.pagos[3].total_restante)
+        // 1. Totales normales (Inscripción, Túnel, Botiquín)
+        const tunelCancelado = formData.pagos[2]?.cancelar_tunel || false
+        const botiquinCancelado = formData.pagos[3]?.cancelar_botiquin || false
 
-        const totalPendiente =
-          insRestante + coachRestante + tunelRestante + botiquinRestante
+        const insRestante = parseFloat(formData.pagos[0].total_restante || 0)
+        const tunelRestante = tunelCancelado
+          ? 0
+          : parseFloat(formData.pagos[2].total_restante || 0)
+        const botiquinRestante = botiquinCancelado
+          ? 0
+          : parseFloat(formData.pagos[3].total_restante || 0)
 
-        // Total a pagar
-        const montoTotal =
-          parseFloat(montoActualizado) +
-          parseFloat(montoCoach || 0) +
-          parseFloat(montoTunel || 0) +
-          parseFloat(montoBoti || 0)
+        const montoInscripcion = parseFloat(montoActualizado || 0)
+        const montoTn = tunelCancelado ? 0 : parseFloat(montoTunel || 0)
+        const montoBtq = botiquinCancelado ? 0 : parseFloat(montoBoti || 0)
 
-        // Total pagado
+        const totalPendiente = insRestante + tunelRestante + botiquinRestante
+        const montoTotal = montoInscripcion + montoTn + montoBtq
         const totalPagado = montoTotal - totalPendiente
 
-        setFormData('monto_total_pendiente', totalPendiente || '0')
-        setFormData('monto_total_pagado', totalPagado || '0')
-        setFormData('monto_total', montoTotal || '0')
+        setFormData('pagos_total_pendiente', totalPendiente)
+        setFormData('pagos_total_pagado', totalPagado)
+        setFormData('pagos_total', montoTotal)
+
+        // 2. Totales de coaching (ajenos)
+        const coachCancelado = formData.pagos[1]?.cancelar_coach || false
+        const restanteCoach = coachCancelado
+          ? 0
+          : parseFloat(formData.pagos[1]?.total_restante || 0)
+        const abonadoCoach = parseFloat(formData.pagos[1]?.total_abonado || 0)
+
+        setFormData('monto_pendiente_coach', restanteCoach)
+        setFormData('monto_pagado_coach', abonadoCoach)
       }
 
       preciosTemporadaCategoria()
     }
   }, [
+    formData.cambio_coach,
     formData.cambio_inscripcion,
     formData.categoria,
+    formData.fecha_inicial,
     formData.pagos,
     formData.temporadaId,
     modalType,
@@ -201,11 +312,52 @@ export const useModal = () => {
 
         const [data] = await obtCostTempPorri(temporadaId)
 
-        const montoIns = parseFloat(data?.inscripcion || 0)
-        const montoCoach = parseFloat(data?.coaching || 0)
+        const subMontoIns = formData.cambio_inscripcion
+          ? formData.pagos[0]?.submonto || 0
+          : data?.inscripcion || 0
 
-        setFormData('pagos.0.monto', montoIns)
-        setFormData('pagos.1.monto', montoCoach)
+        const subMontoCoach = formData.cambio_coach
+          ? formData.pagos[1]?.submonto || 0
+          : data?.coaching || 0
+
+        setFormData('pagos.0.submonto', parseFloat(subMontoIns))
+        setFormData('pagos.1.submonto', parseFloat(subMontoCoach))
+
+        // Descuentos inscripción
+        const submonto = parseFloat(formData.pagos[0]?.submonto || 0)
+        const descuento = parseFloat(formData.pagos[0]?.descuento || 0)
+        const beca = parseFloat(formData.pagos[0]?.beca || 0)
+
+        // Calcular monto con descuento y beca de inscripción
+        const descuentoAplicado = submonto * (descuento / 100)
+        const becaAplicada = submonto * (beca / 100)
+        const montoActualizado = submonto - descuentoAplicado - becaAplicada
+        setFormData('pagos.0.monto', montoActualizado || 0)
+
+        // Descuentos coaching
+        const fechaInicialCoach =
+          formData.pagos[1]?.fecha_inicial || formData.fecha_inicial
+        const fechaFinalCoach = formData.pagos[1]?.fecha_final
+        const descuentoCoach = parseFloat(formData.pagos[1]?.descuento || 0)
+
+        let montoActualizadoCoach = 0
+
+        // Calcular monto con descuento de coaching
+        if (fechaFinalCoach) {
+          const ini = dayjs(fechaInicialCoach, 'YYYY-MM-DD', true)
+          const fin = dayjs(fechaFinalCoach, 'YYYY-MM-DD', true)
+
+          if (ini.isValid() && fin.isValid() && !ini.isAfter(fin)) {
+            const semanas = fin.diff(ini, 'week')
+            const montoBruto = semanas * subMontoCoach
+            montoActualizadoCoach = montoBruto - descuentoCoach
+          } else {
+            montoActualizadoCoach = subMontoCoach - descuentoCoach
+          }
+        } else {
+          montoActualizadoCoach = subMontoCoach - descuentoCoach
+        }
+        setFormData('pagos.1.monto', montoActualizadoCoach || 0)
 
         // Calculos de los restantes totales
         if (formData.pagos?.[0]?.estatus === 'pagado') {
@@ -214,7 +366,7 @@ export const useModal = () => {
           const totalAbonoIns = parseFloat(
             formData.pagos?.[0]?.total_abonado || 0
           )
-          const totalRestanteIns = montoIns - totalAbonoIns
+          const totalRestanteIns = montoActualizado - totalAbonoIns
           setFormData('pagos.0.total_restante', totalRestanteIns)
         }
 
@@ -224,30 +376,37 @@ export const useModal = () => {
           const totalAbonoCoach = parseFloat(
             formData.pagos?.[1]?.total_abonado || 0
           )
-          const totalRestanteCoach = montoCoach - totalAbonoCoach
+          const totalRestanteCoach = montoActualizadoCoach - totalAbonoCoach
           setFormData('pagos.1.total_restante', totalRestanteCoach)
         }
 
-        // Total pendiente
-        const insRestante = parseFloat(formData.pagos[0].total_restante)
-        const coachRestante = parseFloat(formData.pagos[1].total_restante)
+        // 1. Totales normales (Inscripción)
+        const insRestante = parseFloat(formData.pagos[0].total_restante || 0)
+        const montoInscripcion = parseFloat(montoActualizado || 0)
 
-        const totalPendiente = insRestante + coachRestante
+        const totalPagado = montoInscripcion - insRestante
 
-        // Total a pagar
-        const montoTotal = parseFloat(montoIns) + parseFloat(montoCoach || 0)
+        setFormData('pagos_total_pendiente', insRestante)
+        setFormData('pagos_total_pagado', totalPagado)
+        setFormData('pagos_total', montoInscripcion)
 
-        // Total pagado
-        const totalPagado = montoTotal - totalPendiente
+        // 2. Totales de coaching (ajenos)
+        const coachCancelado = formData.pagos[1]?.cancelar_coach || false
+        const restanteCoach = coachCancelado
+          ? 0
+          : parseFloat(formData.pagos[1]?.total_restante || 0)
+        const abonadoCoach = parseFloat(formData.pagos[1]?.total_abonado || 0)
 
-        setFormData('monto_total_pendiente', totalPendiente || '0')
-        setFormData('monto_total_pagado', totalPagado || '0')
-        setFormData('monto_total', montoTotal || '0')
+        setFormData('monto_pendiente_coach', restanteCoach)
+        setFormData('monto_pagado_coach', abonadoCoach)
       }
 
       preciosTemporadaCategoria()
     }
   }, [
+    formData.cambio_coach,
+    formData.cambio_inscripcion,
+    formData.fecha_inicial,
     formData.pagos,
     formData.temporadaId,
     modalType,
@@ -273,14 +432,42 @@ export const useModal = () => {
     }
   }, [])
 
+  useEffect(() => {
+    recalcularTotalesGlobales()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    formData.pagos_total_pendiente,
+    formData.pagos_total_pagado,
+    formData.monto_pendiente_coach,
+    formData.monto_pagado_coach
+  ])
+
+  useEffect(() => {
+    recalcularMontoTotal()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    formData?.pagos?.[0]?.monto,
+    formData?.pagos?.[1]?.monto,
+    formData?.pagos?.[2]?.monto,
+    formData?.pagos?.[3]?.monto
+  ])
+
   const handleAbonoChange = (name, value, index) => {
     const nuevaCantidad = parseFloat(value || 0)
     const totalRestante = parseFloat(
       formData?.pagos[index]?.total_restante || 0
     )
-    const pendienteActual = parseFloat(formData.monto_total_pendiente || 0)
-    const pagadoActual = parseFloat(formData.monto_total_pagado || 0)
     const cantidadAnterior = parseFloat(formData[name] || 0)
+
+    const pagadoActual =
+      index === 1
+        ? parseFloat(formData.monto_pagado_coach || 0)
+        : parseFloat(formData.pagos_total_pagado || 0)
+
+    const pendienteActual =
+      index === 1
+        ? parseFloat(formData.monto_pendiente_coach || 0)
+        : parseFloat(formData.pagos_total_pendiente || 0)
 
     let cantidadFinal = nuevaCantidad
 
@@ -297,8 +484,13 @@ export const useModal = () => {
     const nuevoPagado = pagadoRevertido + cantidadFinal
 
     setFormData(name, cantidadFinal)
-    setFormData('monto_total_pendiente', nuevoPendiente)
-    setFormData('monto_total_pagado', nuevoPagado)
+    if (index === 1) {
+      setFormData('monto_pendiente_coach', nuevoPendiente)
+      setFormData('monto_pagado_coach', nuevoPagado)
+    } else {
+      setFormData('pagos_total_pendiente', nuevoPendiente)
+      setFormData('pagos_total_pagado', nuevoPagado)
+    }
   }
 
   const handleInputChange = async (e, actionMeta) => {
@@ -408,23 +600,29 @@ export const useModal = () => {
       const costoTunel = parseFloat(costosTemporada[0]?.tunel) || 500
       const costoBotiquin = parseFloat(costosTemporada[0]?.botiquin) || 500
 
-      const montoTotal =
-        costoInscripcion + costoCoaching + costoTunel + costoBotiquin
+      const montoTotal = costoInscripcion + costoTunel + costoBotiquin
 
       setFormData('pagos.0.submonto', costoInscripcion)
       setFormData('pagos.0.monto', costoInscripcion)
       setFormData('pagos.0.total_restante', costoInscripcion)
+      setFormData('pagos.1.submonto', costoCoaching)
       setFormData('pagos.1.monto', costoCoaching)
       setFormData('pagos.1.total_restante', costoCoaching)
       setFormData('pagos.2.monto', costoTunel)
       setFormData('pagos.2.total_restante', costoTunel)
       setFormData('pagos.3.monto', costoBotiquin)
       setFormData('pagos.3.total_restante', costoBotiquin)
-      setFormData('monto_total_pendiente', montoTotal)
-      setFormData('monto_total', montoTotal)
+      setFormData('pagos_total_pendiente', montoTotal)
+      setFormData('pagos_total', montoTotal)
+      setFormData('monto_total_pendiente', montoTotal + costoCoaching)
+      setFormData('monto_total', montoTotal + costoCoaching)
     }
 
-    if (name === 'porrista' && pathname === '/pagos-porristas') {
+    if (
+      name === 'porrista' &&
+      pathname === '/pagos-porristas' &&
+      modalType === 'add'
+    ) {
       setFormData('temporadaId', value.temporada)
 
       const costosTemporada = await obtCostTempPorri(value.temporada)
@@ -432,14 +630,18 @@ export const useModal = () => {
       const costoInscripcion =
         parseFloat(costosTemporada[0]?.inscripcion) || 500
       const costoCoaching = parseFloat(costosTemporada[0]?.coaching) || 500
-      const montoTotal = costoInscripcion + costoCoaching
+      const montoTotal = costoInscripcion
 
+      setFormData('pagos.0.submonto', costoInscripcion)
       setFormData('pagos.0.monto', costoInscripcion)
       setFormData('pagos.0.total_restante', costoInscripcion)
+      setFormData('pagos.1.submonto', costoCoaching)
       setFormData('pagos.1.monto', costoCoaching)
       setFormData('pagos.1.total_restante', costoCoaching)
-      setFormData('monto_total_pendiente', montoTotal)
-      setFormData('monto_total', montoTotal)
+      setFormData('pagos_total_pendiente', montoTotal)
+      setFormData('pagos_total', montoTotal)
+      setFormData('monto_total_pendiente', montoTotal + costoCoaching)
+      setFormData('monto_total', montoTotal + costoCoaching)
     }
 
     if (name === 'uid') {
@@ -491,6 +693,68 @@ export const useModal = () => {
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target
     setFormData(name, checked)
+
+    if (
+      name === 'pagos.1.cancelar_coach' ||
+      name === 'pagos.2.cancelar_tunel' ||
+      name === 'pagos.3.cancelar_botiquin'
+    ) {
+      const updatedValue = checked === true || checked === 'true'
+
+      // Identificar el índice y el nombre del campo
+      const index = parseInt(name.split('.')[1], 10)
+
+      const montoPago = parseFloat(formData.pagos[index]?.monto || 0)
+      const pendientePago = parseFloat(
+        formData.pagos[index]?.total_restante || 0
+      )
+      const pagadoPago = parseFloat(formData.pagos[index]?.total_abonado || 0)
+
+      if (index === 1) {
+        const pendienteCoach = parseFloat(formData.monto_pendiente_coach || 0)
+        const pagadoCoach = parseFloat(formData.monto_pagado_coach || 0)
+
+        let nuevoPendienteCoach = pendienteCoach
+        let nuevoPagadoCoach = pagadoCoach
+
+        if (updatedValue) {
+          // Cancelado: quitar montos de coach
+          nuevoPendienteCoach -= pendientePago
+          nuevoPagadoCoach -= pagadoPago
+        } else {
+          // Reversión del cancelado: volver a agregar montos
+          nuevoPendienteCoach += pendientePago
+          nuevoPagadoCoach += pagadoPago
+        }
+
+        setFormData('monto_pendiente_coach', nuevoPendienteCoach)
+        setFormData('monto_pagado_coach', nuevoPagadoCoach)
+      } else {
+        // === Otros pagos (tunel, botiquín) ===
+        let nuevoPendiente = parseFloat(formData.pagos_total_pendiente || 0)
+        let nuevoPagado = parseFloat(formData.pagos_total_pagado || 0)
+        let nuevoTotal = parseFloat(formData.pagos_total || 0)
+
+        if (updatedValue) {
+          // Cancelado: quitar montos de totales
+          nuevoTotal -= montoPago
+          nuevoPendiente -= pendientePago
+          nuevoPagado -= pagadoPago
+        } else {
+          // Reversión del cancelado: volver a agregar montos
+          nuevoTotal += montoPago
+          nuevoPendiente += pendientePago
+          nuevoPagado += pagadoPago
+        }
+
+        setNestedFormData('pagos_total', nuevoTotal)
+        setNestedFormData('pagos_total_pendiente', nuevoPendiente)
+        setNestedFormData('pagos_total_pagado', nuevoPagado)
+      }
+
+      recalcularMontoTotal()
+      recalcularTotalesGlobales()
+    }
   }
 
   const handleNestedInputChange = (e) => {
@@ -534,17 +798,14 @@ export const useModal = () => {
       setNestedFormData('pagos.0.total_restante', totalRestante)
 
       // Obtener montos de los otros pagos
-      const montoCoach = parseFloat(formData.pagos[1]?.monto) || 0
       const montoTunel = parseFloat(formData.pagos[2]?.monto) || 0
       const montoBoti = parseFloat(formData.pagos[3]?.monto) || 0
 
       // Calcular monto total
-      const montoTotal = montoActualizado + montoCoach + montoTunel + montoBoti
-      setNestedFormData('monto_total', montoTotal)
+      const montoTotal = montoActualizado + montoTunel + montoBoti
+      setNestedFormData('pagos_total', montoTotal)
 
       // Calcular pendiente
-      const montoCoachPendiente =
-        parseFloat(formData.pagos[1]?.total_restante) || 0
       const montoTunelPendiente =
         parseFloat(formData.pagos[2]?.total_restante) || 0
       const montoBotiPendiente =
@@ -552,49 +813,65 @@ export const useModal = () => {
 
       // Calcular monto total
       const montoTotalPendiente =
-        totalRestante +
-        montoCoachPendiente +
-        montoTunelPendiente +
-        montoBotiPendiente
-      setNestedFormData('monto_total_pendiente', montoTotalPendiente)
+        totalRestante + montoTunelPendiente + montoBotiPendiente
+      setNestedFormData('pagos_total_pendiente', montoTotalPendiente)
 
       // Calcular monto pagado
       const montoTotalPagado = montoTotal - montoTotalPendiente
-      setNestedFormData('monto_total_pagado', montoTotalPagado)
+      setNestedFormData('pagos_total_pagado', montoTotalPagado)
     } else if (name.startsWith('pagos.') && name.endsWith('.estatus')) {
-      // Actualizamos el campo editado
       setNestedFormData(name, value)
 
-      // Obtener pagos actualizados
-      const updatedPagos = [...formData.pagos].map((pago, index) => {
-        if (`pagos.${index}.estatus` === name) {
-          return { ...pago, estatus: value }
+      const index = parseInt(name.split('.')[1], 10)
+
+      if (index === 1) {
+        // === COACHING ===
+        const pago = formData.pagos[1]
+        const monto = parseFloat(pago.monto || 0)
+        const abonado = parseFloat(pago.total_abonado || 0)
+
+        if (value === 'pagado') {
+          // Coaching pagado completamente
+          setFormData('monto_pagado_coach', monto)
+          setFormData('monto_pendiente_coach', 0)
+        } else if (value === 'pendiente') {
+          const restante = monto - abonado
+          setFormData('monto_pagado_coach', abonado)
+          setFormData('monto_pendiente_coach', restante)
         }
-        return pago
-      })
+      } else {
+        // === RESTO DE PAGOS ===
+        const updatedPagos = [...formData.pagos].map((pago, i) => {
+          if (i === index) {
+            return { ...pago, estatus: value }
+          }
+          return pago
+        })
 
-      // Calcular montos
-      let montoTotal = 0
-      let totalPagado = 0
-      let totalPendiente = 0
+        // Calcular montos sin coaching
+        let montoTotal = 0
+        let totalPagado = 0
+        let totalPendiente = 0
 
-      updatedPagos.forEach((pago) => {
-        const monto = parseFloat(pago.monto) || 0
-        montoTotal += monto
+        updatedPagos.forEach((pago, i) => {
+          if (i !== 1) {
+            const monto = parseFloat(pago.monto) || 0
+            montoTotal += monto
 
-        if (pago.estatus === 'pagado') {
-          totalPagado += monto
-        } else if (pago.estatus === 'pendiente') {
-          const pendiente =
-            parseFloat(pago.monto) - parseFloat(pago.total_abonado)
-          totalPendiente += pendiente
-          totalPagado += parseFloat(pago.total_abonado)
-        }
-      })
+            if (pago.estatus === 'pagado') {
+              totalPagado += monto
+            } else if (pago.estatus === 'pendiente') {
+              const pendiente = monto - (parseFloat(pago.total_abonado) || 0)
+              totalPendiente += pendiente
+              totalPagado += parseFloat(pago.total_abonado) || 0
+            }
+          }
+        })
 
-      setNestedFormData('monto_total', montoTotal)
-      setNestedFormData('monto_total_pagado', totalPagado)
-      setNestedFormData('monto_total_pendiente', totalPendiente)
+        setNestedFormData('pagos_total', montoTotal)
+        setNestedFormData('pagos_total_pagado', totalPagado)
+        setNestedFormData('pagos_total_pendiente', totalPendiente)
+      }
     } else if (name.startsWith('pagos.') && name.endsWith('.monto')) {
       setNestedFormData(name, value)
 
@@ -615,23 +892,36 @@ export const useModal = () => {
 
       setFormData('pagos', updatedPagos)
 
-      let montoTotal = 0
-      let totalPagado = 0
-      let totalPendiente = 0
+      if (name.startsWith('pagos.1')) {
+        const pagoCoach = updatedPagos[1]
+        setNestedFormData('monto_pagado_coach', pagoCoach.total_abonado || 0)
+        setNestedFormData(
+          'monto_pendiente_coach',
+          pagoCoach.total_restante || 0
+        )
+      } else {
+        let montoTotal = 0
+        let totalPagado = 0
+        let totalPendiente = 0
 
-      updatedPagos.forEach((pago) => {
-        montoTotal += pago.monto
+        updatedPagos.forEach((pago, i) => {
+          if (i !== 1) {
+            montoTotal += pago.monto || 0
 
-        if (pago.estatus === 'pagado') {
-          totalPagado += pago.monto
-        } else if (pago.estatus === 'pendiente') {
-          totalPendiente += pago.monto
-        }
-      })
+            if (pago.estatus === 'pagado') {
+              totalPagado += pago.monto
+            } else {
+              const pendiente = (pago.monto || 0) - (pago.total_abonado || 0)
+              totalPendiente += pendiente
+              totalPagado += pago.total_abonado || 0
+            }
+          }
+        })
 
-      setNestedFormData('monto_total', montoTotal)
-      setNestedFormData('monto_total_pagado', totalPagado)
-      setNestedFormData('monto_total_pendiente', totalPendiente)
+        setNestedFormData('pagos_total', montoTotal)
+        setNestedFormData('pagos_total_pagado', totalPagado)
+        setNestedFormData('pagos_total_pendiente', totalPendiente)
+      }
     } else if (
       name.startsWith('pagos.') &&
       name.endsWith('.abono') &&
@@ -649,15 +939,27 @@ export const useModal = () => {
 
       const abonoField = abonoFields[index]
       const abono = parseFloat(formData[abonoField] || 0)
-      const pendienteActual = parseFloat(formData.monto_total_pendiente || 0)
-      const pagadoActual = parseFloat(formData.monto_total_pagado || 0)
+      const pendienteActual = parseFloat(formData.pagos_total_pendiente || 0)
+      const pagadoActual = parseFloat(formData.pagos_total_pagado || 0)
 
       const nuevoPendiente = pendienteActual + abono
       const nuevoPagado = pagadoActual - abono
 
       setFormData(abonoField, 0)
-      setFormData('monto_total_pendiente', nuevoPendiente)
-      setFormData('monto_total_pagado', nuevoPagado)
+      setFormData('pagos_total_pendiente', nuevoPendiente)
+      setFormData('pagos_total_pagado', nuevoPagado)
+    }
+
+    if (
+      name === 'pagos.1.submonto' ||
+      name === 'pagos.1.descuento' ||
+      name === 'pagos.1.fecha_inicial' ||
+      name === 'pagos.1.fecha_final'
+    ) {
+      setNestedFormData(name, value)
+      setTimeout(() => {
+        recalcularPagoCoaching()
+      }, 0)
     }
 
     if (

@@ -1,5 +1,12 @@
 export const formOptions = {
   inscriptionFields: [
+    { required: true, type: 'number', label: 'Beca (%) *', name: 'beca' },
+    {
+      required: true,
+      type: 'number',
+      label: 'Descuento por equipo propio (%) *',
+      name: 'descuento'
+    },
     {
       required: true,
       type: 'select',
@@ -13,14 +20,14 @@ export const formOptions = {
     {
       required: true,
       type: 'number',
-      label: 'Monto total *',
-      name: 'monto'
+      label: 'Submonto *',
+      name: 'submonto'
     },
     {
-      required: false,
-      type: 'date',
-      label: 'Fecha de pago',
-      name: 'fecha_pago'
+      required: true,
+      type: 'number',
+      label: 'Monto final *',
+      name: 'monto'
     },
     {
       required: false,
@@ -34,6 +41,12 @@ export const formOptions = {
         { value: 'efectivo', label: 'Efectivo' },
         { value: 'cheques', label: ' Cheques' }
       ]
+    },
+    {
+      required: false,
+      type: 'date',
+      label: 'Fecha de pago',
+      name: 'fecha_pago'
     },
     {
       required: false,
@@ -60,6 +73,18 @@ export const formOptions = {
   ],
   coachingFields: [
     {
+      required: false,
+      type: 'date',
+      label: 'Fecha inicial',
+      name: 'fecha_inicial'
+    },
+    {
+      required: false,
+      type: 'date',
+      label: 'Fecha final',
+      name: 'fecha_final'
+    },
+    {
       required: true,
       type: 'select',
       label: 'Estatus *',
@@ -69,12 +94,30 @@ export const formOptions = {
         { value: 'pagado', label: 'Pagado' }
       ]
     },
-    { required: true, type: 'number', label: 'Monto total *', name: 'monto' },
     {
       required: false,
       type: 'date',
       label: 'Fecha de pago',
-      name: 'fecha_pago'
+      name: 'fecha_pago',
+      condition: (formData) => formData.estatus === 'pagado'
+    },
+    {
+      required: true,
+      type: 'number',
+      label: 'Descuento ($) *',
+      name: 'descuento'
+    },
+    {
+      required: true,
+      type: 'number',
+      label: 'Submonto *',
+      name: 'submonto'
+    },
+    {
+      required: true,
+      type: 'number',
+      label: 'Monto final *',
+      name: 'monto'
     },
     {
       required: false,
@@ -116,19 +159,59 @@ export const formOptions = {
     {
       required: false,
       type: 'number',
-      label: 'Total pagado *',
-      name: 'monto_total_pagado'
+      label: 'Monto pendiente restante *',
+      name: 'pagos_total_pendiente'
     },
     {
       required: false,
       type: 'number',
-      label: 'Total pendiente restante *',
-      name: 'monto_total_pendiente'
+      label: 'Monto pagado *',
+      name: 'pagos_total_pagado'
     },
     {
       required: true,
       type: 'number',
       label: 'Monto total a pagar *',
+      name: 'pagos_total'
+    }
+  ],
+  paymentsCoachingField: [
+    {
+      required: true,
+      type: 'number',
+      label: 'Monto pendiente a pagar del coaching *',
+      name: 'monto_pendiente_coach'
+    },
+    {
+      required: true,
+      type: 'number',
+      label: 'Monto pagado del coaching *',
+      name: 'monto_pagado_coach'
+    },
+    {
+      required: true,
+      type: 'number',
+      label: 'Historial pagado del coaching *',
+      name: 'historial_total_pagado'
+    }
+  ],
+  paymentsCompletosFields: [
+    {
+      required: false,
+      type: 'number',
+      label: 'Total pendiente restante (los 4 pagos) *',
+      name: 'monto_total_pendiente'
+    },
+    {
+      required: false,
+      type: 'number',
+      label: 'Total pagado (los 4 pagos) *',
+      name: 'monto_total_pagado'
+    },
+    {
+      required: true,
+      type: 'number',
+      label: 'Total a pagar (los 4 pagos) *',
       name: 'monto_total'
     }
   ]

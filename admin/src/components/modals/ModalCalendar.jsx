@@ -1,7 +1,7 @@
 import { Calendar, NotebookText, SquareUser } from 'lucide-react'
 import { Link } from 'react-router'
 
-export const ModalCalendar = ({ closeModal, info, jugador = false }) => {
+export const ModalCalendar = ({ closeModal, info }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'pagado':
@@ -100,9 +100,7 @@ export const ModalCalendar = ({ closeModal, info, jugador = false }) => {
                         <div className='flex items-center gap-2 mb-2'>
                           <Calendar className='h-5 w-5 text-blue-500' />
                           <h4 className='font-medium text-gray-700'>
-                            {jugador
-                              ? 'Fecha del último pago de Coaching'
-                              : 'Fecha de pago de Coaching'}
+                            Fecha del último pago de Coaching
                           </h4>
                         </div>
                         <p className='text-lg font-semibold text-gray-900'>
@@ -129,37 +127,33 @@ export const ModalCalendar = ({ closeModal, info, jugador = false }) => {
                       </div>
                     </div>
 
-                    {jugador && (
-                      <>
-                        <div className='border border-gray-200 shadow-sm'>
-                          <div className='p-4'>
-                            <div className='flex items-center gap-2 mb-2'>
-                              <Calendar className='h-5 w-5 text-blue-500' />
-                              <h4 className='font-medium text-gray-700'>
-                                Fecha limte de pago de inscripción
-                              </h4>
-                            </div>
-                            <p className='text-lg font-semibold text-gray-900'>
-                              {info.limite_ins}
-                            </p>
-                          </div>
+                    <div className='border border-gray-200 shadow-sm'>
+                      <div className='p-4'>
+                        <div className='flex items-center gap-2 mb-2'>
+                          <Calendar className='h-5 w-5 text-blue-500' />
+                          <h4 className='font-medium text-gray-700'>
+                            Fecha limte de pago de inscripción
+                          </h4>
                         </div>
+                        <p className='text-lg font-semibold text-gray-900'>
+                          {info.limite_ins}
+                        </p>
+                      </div>
+                    </div>
 
-                        <div className='border border-gray-200 shadow-sm'>
-                          <div className='p-4'>
-                            <div className='flex items-center gap-2 mb-2'>
-                              <Calendar className='h-5 w-5 text-blue-500' />
-                              <h4 className='font-medium text-gray-700'>
-                                Fecha limite de pago de Coaching
-                              </h4>
-                            </div>
-                            <p className='text-lg font-semibold text-gray-900'>
-                              {info.limite_coach}
-                            </p>
-                          </div>
+                    <div className='border border-gray-200 shadow-sm'>
+                      <div className='p-4'>
+                        <div className='flex items-center gap-2 mb-2'>
+                          <Calendar className='h-5 w-5 text-blue-500' />
+                          <h4 className='font-medium text-gray-700'>
+                            Fecha limite de pago de Coaching
+                          </h4>
                         </div>
-                      </>
-                    )}
+                        <p className='text-lg font-semibold text-gray-900'>
+                          {info.limite_coach}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

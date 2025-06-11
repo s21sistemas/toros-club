@@ -1,5 +1,6 @@
 import { collection, onSnapshot, query, where } from 'firebase/firestore'
 import { db } from './db/firebaseConfig'
+import dayjs from 'dayjs'
 
 const pagosJugadoresCollection = collection(db, 'pagos_jugadores')
 const pagosPorristaCollection = collection(db, 'pagos_porristas')
@@ -21,7 +22,12 @@ export const getPaymentsPlayers = (callback) => {
         : pago.fecha_registro
 
       const ins = pagos.find((p) => p.tipo === 'Inscripción').estatus
-      const coach = pagos.find((p) => p.tipo === 'Coaching').estatus
+      let coach = 'pendiente'
+      const actually = dayjs()
+      if (fecha_coach) {
+        const coachPago = dayjs(fecha_coach).isAfter(actually)
+        coach = coachPago ? 'pagado' : 'pendiente'
+      }
 
       const fecha_pago_ins = pagos.find(
         (p) => p.tipo === 'Inscripción'
@@ -57,21 +63,41 @@ export const getPaymentsCheer = async (callback) => {
       const pagos = pago.pagos || []
 
       const fecha_regis = pago.fecha_registro
-      const fecha_ins = pagos.find((p) => p.tipo === 'Inscripción')?.fecha_pago
+      const fecha_ins = pagos.find((p) => p.tipo === 'Inscripción')
+        ?.fecha_limite
+        ? pagos.find((p) => p.tipo === 'Inscripción')?.fecha_limite
+        : pago.fecha_registro
 
-      const fecha_coach = pagos.find((p) => p.tipo === 'Coaching')?.fecha_pago
+      const fecha_coach = pagos.find((p) => p.tipo === 'Coaching').fecha_limite
+        ? pagos.find((p) => p.tipo === 'Coaching')?.fecha_limite
+        : pago.fecha_registro
 
       const ins = pagos.find((p) => p.tipo === 'Inscripción').estatus
-      const coach = pagos.find((p) => p.tipo === 'Coaching').estatus
+      let coach = 'pendiente'
+      const actually = dayjs()
+      if (fecha_coach) {
+        const coachPago = dayjs(fecha_coach).isAfter(actually)
+        coach = coachPago ? 'pagado' : 'pendiente'
+      }
+
+      const fecha_pago_ins = pagos.find(
+        (p) => p.tipo === 'Inscripción'
+      ).fecha_pago
+
+      const fecha_pago_coach = pagos.find(
+        (p) => p.tipo === 'Coaching'
+      ).fecha_pago
 
       const porristaId = doc.data().porristaId
 
       return {
         id: doc.id,
         nombre: pago.nombre,
+        fecha_regis,
         fecha_ins,
         fecha_coach,
-        fecha_regis,
+        fecha_pago_ins,
+        fecha_pago_coach,
         ins,
         coach,
         porristaId
@@ -101,8 +127,12 @@ export const getPlayersByTempCat = (temporadaId, categoria, callback) => {
 
       const ins =
         pagos.find((p) => p.tipo === 'Inscripción')?.estatus || 'Pendiente'
-      const coach =
-        pagos.find((p) => p.tipo === 'Coaching')?.estatus || 'Pendiente'
+      let coach = 'pendiente'
+      const actually = dayjs()
+      if (fecha_coach) {
+        const coachPago = dayjs(fecha_coach).isAfter(actually)
+        coach = coachPago ? 'pagado' : 'pendiente'
+      }
 
       const fecha_pago_ins =
         pagos.find((p) => p.tipo === 'Inscripción')?.fecha_pago || null

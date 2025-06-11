@@ -209,10 +209,17 @@ const createPagoJugador = async (
         estatus: 'pendiente',
         fecha_pago: null,
         fecha_limite: null,
+        fecha_inicial: actuallyDate.format('YYYY-MM-DD'),
+        fecha_final: null,
+        descuento: '0',
+        submonto: costoCoaching,
+        historial_total_abonado: 0,
+        historial_total_pagado: 0,
         monto: costoCoaching,
         metodo_pago: null,
         abono: 'NO',
         abonos: [],
+        pago_coaching: [],
         total_abonado: 0
       },
       {
@@ -237,6 +244,7 @@ const createPagoJugador = async (
       }
     ],
     monto_total_pagado: 0,
+    monto_total_pagado_coaching: 0,
     monto_total_pendiente: montoTotal,
     monto_total: montoTotal,
     fecha_registro: actuallyDate.format('YYYY-MM-DD')

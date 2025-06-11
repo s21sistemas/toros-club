@@ -38,11 +38,14 @@ export const useCalendarCheer = () => {
         end: dayjs(`${payment.fecha_regis}T11:59:59`).toDate(),
         coach: payment.coach,
         ins: payment.ins,
-        pago_ins: payment.fecha_ins
-          ? dayjs(payment.fecha_ins).format('LL')
+        limite_ins: dayjs(payment.fecha_ins),
+        limite_coach: dayjs(payment.fecha_coach),
+        fecha_restring: dayjs(payment.fecha_pago_coach),
+        pago_ins: payment.fecha_pago_ins
+          ? dayjs(payment.fecha_pago_ins).format('LL')
           : 'No ha pagado',
-        pago_coach: payment.fecha_coach
-          ? dayjs(payment.fecha_coach).format('LL')
+        pago_coach: payment.fecha_pago_coach
+          ? dayjs(payment.fecha_pago_coach).format('LL')
           : 'No ha pagado'
       }
     })

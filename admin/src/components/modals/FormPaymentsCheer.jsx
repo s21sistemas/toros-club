@@ -6,6 +6,8 @@ import { CancelButtonModal } from './CancelButtonModal'
 import { usePaymentCheer } from '../../hooks/usePaymentCheer'
 import { formOptions } from '../../utils/formPaymentsCheer'
 import { CardAbonos } from '../CardAbonos'
+import { formatearMonedaMXN } from '../../utils/formattedCurrancy'
+import { CardHistorialPagosCoaching } from '../CardHistorialPagosCoaching'
 
 export const FormPaymentsCheer = ({ user }) => {
   const {
@@ -13,7 +15,8 @@ export const FormPaymentsCheer = ({ user }) => {
     document,
     formData,
     handleNestedInputChange,
-    handleInputChange
+    handleInputChange,
+    handleCheckboxChange
   } = useModal()
 
   const { loadOptions, loadOptionsTemporadas } = usePaymentCheer()
@@ -47,6 +50,23 @@ export const FormPaymentsCheer = ({ user }) => {
         />
 
         <AlertaCard text='Pago de inscripción' />
+        <div className='sm:col-span-6 md:col-span-2'>
+          <label className='inline-flex items-center'>
+            <input
+              type='checkbox'
+              name='cambiar_inscripcion'
+              checked={formData.cambiar_inscripcion || false}
+              onChange={handleCheckboxChange}
+              className='sr-only peer outline-0'
+              disabled={user?.coordinadora_jugadores}
+            />
+            <div className="relative w-9 h-5 bg-gray-500 cursor-pointer peer-disabled:bg-gray-300 peer-disabled:cursor-auto peer-focus:outline-0 outline-0 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600" />
+            <span className='ms-3 text-sm font-medium text-gray-900'>
+              ¿Cambiar monto de inscripción?
+            </span>
+          </label>
+        </div>
+
         {formOptions.inscriptionFields.map(
           ({ type, label, name, required, opcSelect }) => (
             <InputField
@@ -69,7 +89,8 @@ export const FormPaymentsCheer = ({ user }) => {
                   name !== 'estatus' &&
                   name !== 'fecha_pago' &&
                   name !== 'metodo_pago') ||
-                user?.coordinadora_porristas
+                user?.coordinadora_porristas ||
+                (name === 'submonto' && !formData.cambiar_inscripcion)
                   ? true
                   : view
               }
@@ -142,33 +163,87 @@ export const FormPaymentsCheer = ({ user }) => {
         )}
 
         <AlertaCard text='Pago de Coaching' />
-        {formOptions.coachingFields.map(
-          ({ type, label, name, required, opcSelect }) => (
-            <InputField
-              key={name}
-              type={type}
-              label={label}
-              required={
-                formData.pagos?.[1]?.estatus === 'pagado' ? true : required
-              }
-              opcSelect={opcSelect}
-              name={`pagos.1.${name}`}
-              value={formData.pagos?.[1]?.[name] ?? ''}
-              onChange={handleNestedInputChange}
+        <div className='sm:col-span-6 md:col-span-2'>
+          <label className='inline-flex items-center'>
+            <input
+              type='checkbox'
+              name='pagos.1.cancelar_coach'
+              checked={formData.pagos?.[1]?.cancelar_coach || false}
+              onChange={handleCheckboxChange}
+              className='sr-only peer outline-0'
               disabled={
-                ['total_abonado', 'monto', 'total_restante'].includes(name) ||
-                (formData.pagos?.[1]?.total_abonado >=
-                  formData.pagos?.[1]?.monto &&
-                  name === 'abono') ||
-                (formData.pagos?.[1]?.estatus === 'pagado' &&
-                  name !== 'estatus' &&
-                  name !== 'fecha_pago' &&
-                  name !== 'metodo_pago')
-                  ? true
-                  : view
+                user?.coordinadora_jugadores ||
+                formData.pagos?.[1]?.estatus === 'pagado'
               }
             />
-          )
+            <div className="relative w-9 h-5 bg-gray-500 cursor-pointer peer-disabled:bg-gray-300 peer-disabled:cursor-auto peer-focus:outline-0 outline-0 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600" />
+            <span className='ms-3 text-sm font-medium text-gray-900'>
+              Cancelar pago de coaching
+            </span>
+          </label>
+        </div>
+        <div className='sm:col-span-6 md:col-span-2'>
+          <label className='inline-flex items-center'>
+            <input
+              type='checkbox'
+              name='cambiar_coach'
+              checked={formData.cambiar_coach || false}
+              onChange={handleCheckboxChange}
+              className='sr-only peer outline-0'
+              disabled={user?.coordinadora_jugadores}
+            />
+            <div className="relative w-9 h-5 bg-gray-500 cursor-pointer peer-disabled:bg-gray-300 peer-disabled:cursor-auto peer-focus:outline-0 outline-0 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600" />
+            <span className='ms-3 text-sm font-medium text-gray-900'>
+              ¿Cambiar monto de coaching?
+            </span>
+          </label>
+        </div>
+
+        <div className='sm:grid-cols-3 gap-2 md:col-span-2'>
+          <div className='border border-gray-200 shadow-lg p-4 text-center md:w-[40%] mx-auto'>
+            <p>
+              <b>Fecha de inscripción:</b> <u>{formData.fecha_inscripcion}</u>
+            </p>
+          </div>
+        </div>
+
+        {formOptions.coachingFields.map(
+          ({ type, label, name, required, opcSelect, condition }) =>
+            (!condition || condition(formData.pagos?.[1] || {})) && (
+              <InputField
+                key={name}
+                type={type}
+                label={label}
+                required={
+                  formData.pagos?.[1]?.estatus === 'pagado' ? true : required
+                }
+                opcSelect={opcSelect}
+                name={`pagos.1.${name}`}
+                value={
+                  name === 'fecha_inicial'
+                    ? formData.pagos?.[1]?.fecha_inicial
+                      ? formData.pagos?.[1]?.fecha_inicial
+                      : formData.pagos?.[1]?.fecha_pago ||
+                        formData.fecha_inicial
+                    : formData.pagos?.[1]?.[name] ?? ''
+                }
+                onChange={handleNestedInputChange}
+                disabled={
+                  ['total_abonado', 'monto', 'total_restante'].includes(name) ||
+                  (formData.pagos?.[1]?.total_abonado >=
+                    formData.pagos?.[1]?.monto &&
+                    name === 'abono') ||
+                  (formData.pagos?.[1]?.estatus === 'pagado' &&
+                    name !== 'estatus' &&
+                    name !== 'fecha_pago' &&
+                    name !== 'metodo_pago') ||
+                  (name === 'submonto' && !formData.cambiar_coach) ||
+                  formData.pagos?.[1]?.cancelar_coach
+                    ? true
+                    : view
+                }
+              />
+            )
         )}
 
         {formData.pagos?.[1]?.abono === 'SI' && (
@@ -219,24 +294,68 @@ export const FormPaymentsCheer = ({ user }) => {
           <>
             <AlertaCard text='Abonos de coaching' />
 
-            {formData.pagos[1].abonos.map((abono) => (
-              <div
-                className='sm:grid-cols-1 md:col-span-2'
-                key={crypto.randomUUID()}
-              >
-                <CardAbonos
-                  amount={abono.cantidad}
-                  date={abono.fecha}
-                  method={abono.metodo}
-                />
-                <hr className='sm:grid-cols-3 gap-2 md:col-span-2' />
+            <div className='sm:grid-cols-3 gap-2 md:col-span-2'>
+              <div className='border border-gray-200 shadow-lg p-4 text-center md:w-[40%] mx-auto'>
+                <p className='font-semibold'>
+                  Total de abonos:{' '}
+                  <span className='text-green-600'>
+                    {formatearMonedaMXN(
+                      formData.pagos?.[1]?.historial_total_abonado || 0
+                    )}
+                  </span>
+                </p>
               </div>
-            ))}
+            </div>
+
+            <div className='sm:grid-cols-1 md:col-span-2 h-50 overflow-y-auto'>
+              {formData.pagos[1].abonos.map((abono) => (
+                <div key={crypto.randomUUID()}>
+                  <CardAbonos
+                    amount={abono.cantidad}
+                    date={abono.fecha}
+                    method={abono.metodo}
+                  />
+                  <hr className='sm:grid-cols-3 gap-2 md:col-span-2' />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {formData.pagos?.[1]?.pago_coaching?.length > 0 && (
+          <>
+            <AlertaCard text='Historial de pagos completos de coaching' />
+
+            <div className='sm:grid-cols-3 gap-2 md:col-span-2'>
+              <div className='border border-gray-200 shadow-lg p-4 text-center md:w-[40%] mx-auto'>
+                <p className='font-semibold'>
+                  Total de pagado:{' '}
+                  <span className='text-green-600'>
+                    {formatearMonedaMXN(
+                      formData.pagos?.[1]?.pago_coaching.reduce(
+                        (acum, pago) =>
+                          acum + (parseFloat(pago.total_pagado) || 0),
+                        0
+                      ) || 0
+                    )}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className='sm:grid-cols-1 md:col-span-2 h-50 overflow-y-auto'>
+              {formData.pagos[1].pago_coaching.map((pago) => (
+                <div key={crypto.randomUUID()}>
+                  <CardHistorialPagosCoaching pago={pago} />
+                  <hr className='sm:grid-cols-3 gap-2 md:col-span-2' />
+                </div>
+              ))}
+            </div>
           </>
         )}
 
         {/* Totales */}
-        <AlertaCard text='Total de pagos' />
+        <AlertaCard text='Total de inscripción' />
         {formOptions.paymentsFields.map(
           ({ type, label, name, required, opcSelect }) => (
             <InputField
@@ -248,15 +367,41 @@ export const FormPaymentsCheer = ({ user }) => {
               name={name}
               value={formData[name] ?? ''}
               onChange={handleNestedInputChange}
-              disabled={
-                [
-                  'monto_total',
-                  'monto_total_pagado',
-                  'monto_total_pendiente'
-                ].includes(name)
-                  ? true
-                  : view
-              }
+              disabled={true}
+            />
+          )
+        )}
+
+        <AlertaCard text='Total de pagos del coaching' />
+        {formOptions.paymentsCoachingField.map(
+          ({ type, label, name, required, opcSelect }) => (
+            <InputField
+              key={name}
+              type={type}
+              label={label}
+              required={required}
+              opcSelect={opcSelect}
+              name={name}
+              value={formData[name] ?? ''}
+              onChange={handleNestedInputChange}
+              disabled={true}
+            />
+          )
+        )}
+
+        <AlertaCard text='Totales' />
+        {formOptions.paymentsCompletosFields.map(
+          ({ type, label, name, required, opcSelect }) => (
+            <InputField
+              key={name}
+              type={type}
+              label={label}
+              required={required}
+              opcSelect={opcSelect}
+              name={name}
+              value={formData[name] ?? ''}
+              onChange={handleNestedInputChange}
+              disabled={true}
             />
           )
         )}

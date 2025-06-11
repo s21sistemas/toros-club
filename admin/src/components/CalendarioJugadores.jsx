@@ -122,9 +122,7 @@ export const CalendarioJugadores = () => {
 
   return (
     <>
-      {toggle && (
-        <ModalCalendar info={info} closeModal={toggleModal} jugador={true} />
-      )}
+      {toggle && <ModalCalendar info={info} closeModal={toggleModal} />}
 
       <div className='mb-3'>
         <AlertaCard text='Calendario de pagos de jugadores' />

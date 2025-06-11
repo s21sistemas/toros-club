@@ -36,56 +36,37 @@ export const usePaymentCheer = () => {
     setNestedFormData('pagos.1.tipo', 'Coaching')
 
     // Solo establecer si no existen (para evitar sobreescribir valores)
+    if (!formData.pagos?.[0]?.beca) {
+      setNestedFormData('pagos.0.beca', '0')
+    }
+    if (!formData.pagos?.[0]?.descuento) {
+      setNestedFormData('pagos.0.descuento', '0')
+    }
+    if (!formData.pagos?.[0]?.fecha_limite) {
+      setNestedFormData('pagos.0.fecha_limite', null)
+    }
+
+    if (!formData.pagos?.[1]?.descuento) {
+      setNestedFormData('pagos.1.descuento', '0')
+    }
+    if (!formData.pagos?.[1]?.fecha_limite) {
+      setNestedFormData('pagos.1.fecha_limite', null)
+    }
+
     if (!formData.pagos?.[0]?.estatus)
       setNestedFormData('pagos.0.estatus', 'pendiente')
     if (!formData.pagos?.[0]?.fecha_pago)
       setNestedFormData('pagos.0.fecha_pago', null)
-    if (!formData.pagos?.[0]?.fecha_pago)
-      setNestedFormData('pagos.0.metodo_pago', null)
     if (!formData.pagos?.[1]?.estatus)
       setNestedFormData('pagos.1.estatus', 'pendiente')
     if (!formData.pagos?.[1]?.fecha_pago)
       setNestedFormData('pagos.1.fecha_pago', null)
-    if (!formData.pagos?.[1]?.fecha_pago)
-      setNestedFormData('pagos.1.metodo_pago', null)
 
     if (!formData.pagos?.[0]?.total_abonado) {
       setNestedFormData('pagos.0.total_abonado', '0')
     }
     if (!formData.pagos?.[1]?.total_abonado) {
       setNestedFormData('pagos.1.total_abonado', '0')
-    }
-
-    if (!formData.pagos?.[0]?.total_abonado) {
-      setNestedFormData('pagos.0.total_abonado', '0')
-      const monto = formData.pagos?.[0]?.monto || '0'
-      setNestedFormData('pagos.0.total_restante', monto)
-    } else {
-      const total_abonado = parseFloat(formData.pagos?.[0]?.total_abonado)
-      const monto = parseFloat(formData.pagos?.[0]?.monto)
-
-      const total_restante = monto - total_abonado
-      setNestedFormData('pagos.0.total_restante', total_restante)
-    }
-
-    if (formData.pagos?.[0]?.estatus === 'pagado') {
-      setNestedFormData('pagos.0.total_restante', '0')
-    }
-
-    if (!formData.pagos?.[1]?.total_abonado) {
-      setNestedFormData('pagos.1.total_abonado', '0')
-      const monto = formData.pagos?.[1]?.monto || '0'
-      setNestedFormData('pagos.1.total_restante', monto)
-    } else {
-      const total_abonado = parseFloat(formData.pagos?.[1]?.total_abonado)
-      const monto = parseFloat(formData.pagos?.[1]?.monto)
-
-      const total_restante = monto - total_abonado
-      setNestedFormData('pagos.1.total_restante', total_restante)
-    }
-
-    if (formData.pagos?.[1]?.estatus === 'pagado') {
-      setNestedFormData('pagos.1.total_restante', '0')
     }
   }, [formData.pagos, setNestedFormData])
 

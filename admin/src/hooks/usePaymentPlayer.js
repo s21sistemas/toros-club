@@ -54,7 +54,14 @@ export const usePaymentPlayer = (handleInputChange) => {
       setNestedFormData('pagos.0.prorroga', 'false')
     }
     if (!formData.pagos?.[0]?.fecha_limite) {
-      setNestedFormData('pagos.0.fecha_limite')
+      setNestedFormData('pagos.0.fecha_limite', null)
+    }
+
+    if (!formData.pagos?.[1]?.descuento) {
+      setNestedFormData('pagos.1.descuento', '0')
+    }
+    if (!formData.pagos?.[1]?.fecha_limite) {
+      setNestedFormData('pagos.1.fecha_limite', null)
     }
 
     if (!formData.pagos?.[0]?.total_abonado) {

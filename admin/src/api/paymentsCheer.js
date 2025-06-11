@@ -44,12 +44,34 @@ export const getPayments = async (callback) => {
     const data = snapshot.docs.map((doc) => {
       const pago = doc.data()
       const pagos = pago.pagos || []
+      const fecha_inscripcion = dayjs(doc.data().fecha_registro).format(
+        'DD/MM/YYYY'
+      )
+      const fecha_inicial = dayjs(doc.data().fecha_registro).format(
+        'YYYY-MM-DD'
+      )
+
+      let coacheo = 'pendiente'
+      const actually = dayjs()
+      const coachFechaLimite = pagos.find(
+        (p) => p.tipo === 'Coaching'
+      )?.fecha_limite
+
+      if (coachFechaLimite) {
+        const coachPago = dayjs(coachFechaLimite).isAfter(actually)
+        coacheo = coachPago ? 'pagado' : 'pendiente'
+      }
 
       return {
         id: doc.id,
         porrista: { value: pago.porristaId, label: pago.nombre },
         inscripcion: pagos.find((p) => p.tipo === 'Inscripción')?.estatus,
-        coacheo: pagos.find((p) => p.tipo === 'Coaching')?.estatus,
+        fecha_limite: pagos.find((p) => p.tipo === 'Inscripción')?.fecha_limite,
+        coacheo: coacheo,
+        historial_total_pagado:
+          pagos.find((p) => p.tipo === 'Coaching')?.historial_total_pagado || 0,
+        fecha_inscripcion,
+        fecha_inicial,
         ...doc.data()
       }
     })
@@ -127,6 +149,57 @@ export const updatePayment = async (id, data) => {
     const inscripcion = data.pagos.find((p) => p.tipo === 'Inscripción')
     const coach = data.pagos.find((p) => p.tipo === 'Coaching')
 
+    // Actualizar coaching
+    const index = data.pagos.findIndex((p) => p.tipo === 'Coaching')
+    if (index !== -1) {
+      const coachingPayment = data.pagos[index] // Obtener el objeto original
+
+      // Sumarle una semana a la fecha final para la fecha limite de pago
+      const fecha = coachingPayment.fecha_pago
+        ? coachingPayment.fecha_pago
+        : coachingPayment.fecha_final
+      const newFechaLimite = dayjs(fecha).add(1, 'week').format('YYYY-MM-DD')
+
+      // Si el pago está en "pagado", actualizar su estado y fecha límite
+      const fechaPago = coachingPayment.fecha_pago
+        ? coachingPayment.fecha_pago
+        : coachingPayment.fecha_final
+      if (coachingPayment.estatus === 'pagado') {
+        newData.pagos[index] = {
+          ...coachingPayment,
+          pago_coaching: [
+            ...(coachingPayment.pago_coaching || []),
+            {
+              fecha_inicial: fechaPago,
+              fecha_final: fechaPago ? fechaPago : coachingPayment.fecha_final,
+              total_pagado: coachingPayment.monto
+            }
+          ],
+          estatus: 'pendiente',
+          fecha_limite: newFechaLimite,
+          fecha_pago: fechaPago,
+          fecha_inicial: fechaPago ? fechaPago : coachingPayment.fecha_final,
+          fecha_final: null,
+          historial_total_pagado:
+            parseFloat(coachingPayment.monto || 0) +
+            parseFloat(coachingPayment.historial_total_pagado || 0),
+          historial_total_abonado:
+            parseFloat(coachingPayment.total_abonado || 0) +
+            parseFloat(coachingPayment.historial_total_abonado || 0),
+          total_abonado: 0,
+          descuento: 0
+        }
+      }
+    }
+
+    if (newData.cambiar_inscripcion) {
+      newData.cambio_inscripcion = newData.cambiar_inscripcion
+    }
+
+    if (newData.cambiar_coach) {
+      newData.cambio_coach = newData.cambiar_coach
+    }
+
     // Abono de inscripción
     if (inscripcion.abono === 'SI') {
       if (!Array.isArray(inscripcion.abonos)) inscripcion.abonos = []
@@ -168,7 +241,6 @@ export const updatePayment = async (id, data) => {
     // Abono de coach
     if (coach.abono === 'SI') {
       if (!Array.isArray(coach.abonos)) coach.abonos = []
-
       coach.abonos.push({
         cantidad: data.cantidad_abono_coach,
         fecha: data.fecha_abono_coach,
@@ -182,11 +254,36 @@ export const updatePayment = async (id, data) => {
       coach.abono = 'NO'
 
       if (parseFloat(coach.total_abonado) === parseFloat(coach.monto)) {
-        coach.estatus = 'pagado'
-        coach.fecha_pago = data.fecha_abono_coach
+        const fechaPagoAcumulado = coach.fecha_final
+        coach.pago_coaching = [
+          ...(coach.pago_coaching || []),
+          {
+            fecha_inicial: coach.fecha_final
+              ? fechaPagoAcumulado
+              : data.fecha_abono_coach,
+            fecha_final: coach.fecha_final
+              ? coach.fecha_final
+              : data.fecha_abono_coach,
+            total_pagado: coach.total_abonado
+          }
+        ]
         coach.metodo_pago = data.metodo_pago_abono_coach
+        coach.fecha_pago = coach.fecha_final
+        coach.fecha_inicial = coach.fecha_final
+        coach.fecha_limite = dayjs(coach.fecha_final)
+          .add(1, 'week')
+          .format('YYYY-MM-DD')
+        coach.fecha_final = null
         coach.total_restante = 0
+        coach.historial_total_abonado =
+          parseFloat(coach.total_abonado || 0) +
+          parseFloat(coach.historial_total_abonado || 0)
+        coach.total_abonado = 0
+        coach.descuento = 0
       }
+      coach.historial_total_pagado =
+        parseFloat(coach.historial_total_pagado || 0) +
+        parseFloat(data.cantidad_abono_coach)
 
       // Abonos en caja
       const coachPagoCaja = {
@@ -238,9 +335,14 @@ export const updatePayment = async (id, data) => {
       await createCaja(coachPago)
     }
 
+    delete newData.cambiar_inscripcion
+    delete newData.cambiar_coach
+
+    delete newData.historial_total_pagado
     delete newData.porrista
     delete newData.coacheo
     delete newData.inscripcion
+    delete newData.fecha_limite
 
     delete newData.cantidad_abono_ins
     delete newData.fecha_abono_ins

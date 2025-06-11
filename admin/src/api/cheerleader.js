@@ -193,6 +193,7 @@ export const removeCheerleader = async (id) => {
 
 const createPagoCheer = async (porristaId, nombrePorrista, temporadaId) => {
   const actuallyDate = dayjs()
+  const dateWeek = actuallyDate.add(1, 'week').format('YYYY/MM/DD')
 
   const costosTemporada = await obtenerCostoTemporada(temporadaId)
 
@@ -213,9 +214,14 @@ const createPagoCheer = async (porristaId, nombrePorrista, temporadaId) => {
     pagos: [
       {
         tipo: 'Inscripción',
+        beca: '0',
+        descuento: '0',
         estatus: 'pendiente',
         fecha_pago: null,
+        submonto: costoInscripcion,
         monto: costoInscripcion,
+        prorroga: false,
+        fecha_limite: dateWeek,
         metodo_pago: null,
         abono: 'NO',
         abonos: [],
@@ -225,14 +231,23 @@ const createPagoCheer = async (porristaId, nombrePorrista, temporadaId) => {
         tipo: 'Coaching',
         estatus: 'pendiente',
         fecha_pago: null,
+        fecha_limite: null,
+        fecha_inicial: actuallyDate.format('YYYY-MM-DD'),
+        fecha_final: null,
+        descuento: '0',
+        submonto: costoCoaching,
+        historial_total_abonado: 0,
+        historial_total_pagado: 0,
         monto: costoCoaching,
         metodo_pago: null,
         abono: 'NO',
         abonos: [],
+        pagos_coaching: [],
         total_abonado: 0
       }
     ],
     monto_total_pagado: 0,
+    monto_total_pagado_coaching: 0,
     monto_total_pendiente: montoTotal,
     monto_total: montoTotal,
     fecha_registro: actuallyDate.format('YYYY-MM-DD')

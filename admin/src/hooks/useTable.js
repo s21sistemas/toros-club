@@ -91,7 +91,11 @@ export const useTable = () => {
         return 'bg-[#e89b0b]'
       }
 
-      if (columnKey === 'coacheo' && abonoCoach > 0) {
+      if (
+        columnKey === 'coacheo' &&
+        abonoCoach > 0 &&
+        dayjs(coachingPayment.fecha_final).isAfter(actually)
+      ) {
         return 'bg-gradient-to-r from-[#e89b0b] to-red-500'
       }
 

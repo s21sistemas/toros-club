@@ -21,13 +21,30 @@ export const CalendarioPorristas = () => {
 
   const toggleModal = (props) => {
     if (props.event) {
+      const fecha_restring = dayjs(props.event.fecha_restring)
+      const haceDosSemanas = dayjs().subtract(2, 'week')
+
+      const restringir = fecha_restring.isBefore(haceDosSemanas)
+
       const pago_ins = props.event.pago_ins
       const pago_coach = props.event.pago_coach
+      const limite_ins = dayjs(props.event.limite_ins).format('LL')
+      const limite_coach = dayjs(props.event.limite_coach).format('LL')
       const nombre = props.event.title
       const coach = props.event.coach
       const ins = props.event.ins
       const url = `/pagos-porristas?nombre=${encodeURIComponent(nombre)}`
-      setInfo({ nombre, pago_ins, pago_coach, coach, ins, url })
+      setInfo({
+        nombre,
+        limite_ins,
+        limite_coach,
+        pago_ins,
+        pago_coach,
+        coach,
+        ins,
+        url,
+        restringir
+      })
     }
 
     setToggle(!toggle)
@@ -35,10 +52,20 @@ export const CalendarioPorristas = () => {
 
   const components = {
     event: (props) => {
-      const ins = props.event.ins
-      const coach = props.event.coach
+      const actually = dayjs()
+      const fecha_coach = dayjs(props.event.limite_coach)
+      const limit = actually.isBefore(fecha_coach)
 
-      if (ins === 'pendiente' && coach === 'pendiente') {
+      if (props.event.ins === 'pendiente' && limit) {
+        return (
+          <div
+            className='bg-gradient-to-r from-red-600 to-green-600 px-2 rounded-sm'
+            onClick={() => toggleModal(props)}
+          >
+            {props.title}
+          </div>
+        )
+      } else if (props.event.ins === 'pendiente') {
         return (
           <div
             className='bg-red-600 px-2 rounded-sm'
@@ -47,23 +74,10 @@ export const CalendarioPorristas = () => {
             {props.title}
           </div>
         )
-      }
-
-      if (ins === 'pagado' && coach === 'pagado') {
+      } else if (props.event.ins === 'pagado' && limit) {
         return (
           <div
             className='bg-green-600 px-2 rounded-sm'
-            onClick={() => toggleModal(props)}
-          >
-            {props.title}
-          </div>
-        )
-      }
-
-      if (ins === 'pendiente' && coach === 'pagado') {
-        return (
-          <div
-            className='bg-gradient-to-r from-red-600 to-green-600 px-2 rounded-sm'
             onClick={() => toggleModal(props)}
           >
             {props.title}
