@@ -47,6 +47,13 @@ export const getPayments = async (callback) => {
         'YYYY-MM-DD'
       )
 
+      const coachCancelado =
+        pagos.find((p) => p.tipo === 'Coaching')?.cancelar_coach || false
+      const tunelCancelado =
+        pagos.find((p) => p.tipo === 'Túnel')?.cancelar_tunel || false
+      const btqCancelado =
+        pagos.find((p) => p.tipo === 'Botiquín')?.cancelar_botiquin || false
+
       let coacheo = 'pendiente'
       const actually = dayjs()
       const coachFechaLimite = pagos.find(
@@ -58,14 +65,22 @@ export const getPayments = async (callback) => {
         coacheo = coachPago ? 'pagado' : 'pendiente'
       }
 
+      let tunel = pagos.find((p) => p.tipo === 'Túnel')?.estatus || 'pendiente'
+      let botiquin =
+        pagos.find((p) => p.tipo === 'Botiquín')?.estatus || 'pendiente'
+
+      if (coachCancelado) coacheo = 'cancelado'
+      if (tunelCancelado) tunel = 'cancelado'
+      if (btqCancelado) botiquin = 'cancelado'
+
       return {
         id: doc.id,
         jugador: { value: pago.jugadorId, label: pago.nombre },
         prorroga: pagos.find((p) => p.tipo === 'Inscripción')?.prorroga,
         fecha_limite: pagos.find((p) => p.tipo === 'Inscripción')?.fecha_limite,
         inscripcion: pagos.find((p) => p.tipo === 'Inscripción')?.estatus,
-        tunel: pagos.find((p) => p.tipo === 'Túnel')?.estatus,
-        botiquin: pagos.find((p) => p.tipo === 'Botiquín')?.estatus,
+        tunel,
+        botiquin,
         coacheo: coacheo,
         historial_total_pagado:
           pagos.find((p) => p.tipo === 'Coaching')?.historial_total_pagado || 0,

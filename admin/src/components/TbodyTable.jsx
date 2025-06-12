@@ -42,7 +42,12 @@ export const TbodyTable = ({
                         />
                       )}
 
-                      {['pendiente', 'pagado'].includes(item[col.key]) ? (
+                      {[
+                        'pendiente',
+                        'pagado',
+                        'cancelada',
+                        'cancelado'
+                      ].includes(item[col.key]) ? (
                         <p>
                           <span
                             className={`text-sm text-white pt-[3px] pb-[5px] px-[6px] rounded-md ${handleClass(
@@ -61,9 +66,13 @@ export const TbodyTable = ({
                     </div>
                   ) : (
                     <>
-                      {['pendiente', 'pagado', 'pagada', 'cancelada'].includes(
-                        item[col.key]
-                      ) ? (
+                      {[
+                        'pendiente',
+                        'pagado',
+                        'pagada',
+                        'cancelada',
+                        'cancelado'
+                      ].includes(item[col.key]) ? (
                         <p>
                           <span
                             className={`text-sm text-white pt-[3px] pb-[5px] px-[6px] rounded-md ${handleClass(

@@ -57,7 +57,9 @@ export const useTable = () => {
       return 'bg-green-700'
     }
 
-    if (['cancelada', 'Cancelada'].includes(estatus)) {
+    if (
+      ['cancelada', 'Cancelada', 'cancelado', 'Cancelado'].includes(estatus)
+    ) {
       return 'bg-[#e89b0b]'
     }
 
@@ -72,15 +74,15 @@ export const useTable = () => {
       )
 
       if (columnKey === 'inscripcion' && abonoIns > 0) {
-        return 'bg-gradient-to-r from-[#e89b0b] to-red-500'
+        return 'bg-gradient-to-r from-green-700 to-red-500'
       }
 
       if (columnKey === 'tunel' && abonoTun > 0) {
-        return 'bg-gradient-to-r from-[#e89b0b] to-red-500'
+        return 'bg-gradient-to-r from-green-700 to-red-500'
       }
 
       if (columnKey === 'botiquin' && abonoBot > 0) {
-        return 'bg-gradient-to-r from-[#e89b0b] to-red-500'
+        return 'bg-gradient-to-r from-green-700 to-red-500'
       }
 
       if (
@@ -96,7 +98,7 @@ export const useTable = () => {
         abonoCoach > 0 &&
         dayjs(coachingPayment.fecha_final).isAfter(actually)
       ) {
-        return 'bg-gradient-to-r from-[#e89b0b] to-red-500'
+        return 'bg-gradient-to-r from-green-700 to-red-500'
       }
 
       if (

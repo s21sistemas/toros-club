@@ -7,6 +7,7 @@ import { usePaymentPlayer } from '../hooks/usePaymentPlayer'
 import { FormPaymentsPlayers } from '../components/modals/FormPaymentsPlayers'
 import { FiltroPagosJugadores } from '../components/FiltroPagosJugadores'
 import { useAuth } from '../hooks/useAuth'
+import { CalculadoraCoaching } from '../components/CalculadoraCoaching'
 
 const columns = [
   { key: 'inscripcion', name: 'Inscripción' },
@@ -104,6 +105,8 @@ export default function PagosJugadoresPage() {
       {modalType === 'delete' && currentItem && (
         <ModalDelete handleDelete={handleDelete} />
       )}
+
+      <CalculadoraCoaching />
     </div>
   )
 }
