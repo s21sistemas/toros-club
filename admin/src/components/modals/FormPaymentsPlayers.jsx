@@ -243,7 +243,12 @@ export const FormPaymentsPlayers = ({ user }) => {
                 }
                 onChange={handleNestedInputChange}
                 disabled={
-                  ['total_abonado', 'monto', 'total_restante'].includes(name) ||
+                  [
+                    'total_abonado',
+                    'monto',
+                    'total_restante',
+                    'fecha_inicial'
+                  ].includes(name) ||
                   (formData.pagos?.[1]?.total_abonado >=
                     formData.pagos?.[1]?.monto &&
                     name === 'abono') ||

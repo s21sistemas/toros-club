@@ -58,7 +58,7 @@ export const FormPaymentsCheer = ({ user }) => {
               checked={formData.cambiar_inscripcion || false}
               onChange={handleCheckboxChange}
               className='sr-only peer outline-0'
-              disabled={user?.coordinadora_jugadores}
+              disabled={user?.coordinadora_porristas}
             />
             <div className="relative w-9 h-5 bg-gray-500 cursor-pointer peer-disabled:bg-gray-300 peer-disabled:cursor-auto peer-focus:outline-0 outline-0 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600" />
             <span className='ms-3 text-sm font-medium text-gray-900'>
@@ -172,7 +172,7 @@ export const FormPaymentsCheer = ({ user }) => {
               onChange={handleCheckboxChange}
               className='sr-only peer outline-0'
               disabled={
-                user?.coordinadora_jugadores ||
+                user?.coordinadora_porristas ||
                 formData.pagos?.[1]?.estatus === 'pagado'
               }
             />
@@ -190,7 +190,7 @@ export const FormPaymentsCheer = ({ user }) => {
               checked={formData.cambiar_coach || false}
               onChange={handleCheckboxChange}
               className='sr-only peer outline-0'
-              disabled={user?.coordinadora_jugadores}
+              disabled={user?.coordinadora_porristas}
             />
             <div className="relative w-9 h-5 bg-gray-500 cursor-pointer peer-disabled:bg-gray-300 peer-disabled:cursor-auto peer-focus:outline-0 outline-0 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600" />
             <span className='ms-3 text-sm font-medium text-gray-900'>
@@ -229,7 +229,12 @@ export const FormPaymentsCheer = ({ user }) => {
                 }
                 onChange={handleNestedInputChange}
                 disabled={
-                  ['total_abonado', 'monto', 'total_restante'].includes(name) ||
+                  [
+                    'total_abonado',
+                    'monto',
+                    'total_restante',
+                    'fecha_inicial'
+                  ].includes(name) ||
                   (formData.pagos?.[1]?.total_abonado >=
                     formData.pagos?.[1]?.monto &&
                     name === 'abono') ||

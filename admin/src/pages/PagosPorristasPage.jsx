@@ -6,6 +6,7 @@ import { useModal } from '../hooks/useModal'
 import { FormPaymentsCheer } from '../components/modals/FormPaymentsCheer'
 import { usePaymentCheer } from '../hooks/usePaymentCheer'
 import { useAuth } from '../hooks/useAuth'
+import { CalculadoraCoaching } from '../components/CalculadoraCoaching'
 
 const columns = [
   { key: 'inscripcion', name: 'Inscripción' },
@@ -70,6 +71,8 @@ export default function PagosPorristasPage() {
       {modalType === 'delete' && currentItem && (
         <ModalDelete handleDelete={handleDelete} />
       )}
+
+      <CalculadoraCoaching />
     </div>
   )
 }

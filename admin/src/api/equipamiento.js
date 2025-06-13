@@ -34,9 +34,8 @@ export const getEquipamiento = async (callback) => {
       const docData = doc.data()
 
       const jugador = docData?.jugadorId?.label || 'Sin asignar'
-      const equipo_prestado = Object.entries(docData)
-        .filter(([key, value]) => value === true && key !== 'devuelto')
-        .map(([key]) => key.replace(/_/g, ' '))
+      const equipo_prestado = docData.equipamiento_asignado
+        .map((item) => item.label)
         .join(', ')
 
       return {
